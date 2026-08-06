@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <title>BACOLTV</title>
 <meta name="description" content="BACOLTV — Nonton streaming gratis"/>
 <meta name="theme-color" content="#0a0e17"/>
@@ -47,8 +50,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   .so-grid,.co-grid{grid-template-columns:repeat(6,1fr);}
 }
 
-/* ── HEADER ── */
-#site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:rgba(10,14,23,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:14px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
+/* ── HEADER (Optimasi Anti Lag: Solid Background, hapus efek blur) ── */
+#site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:#0a0e17;border:1px solid var(--border);border-radius:14px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
 .logo{display:flex;align-items:center;gap:8px;}
 .logo-icon{width:24px;height:24px;}
 .logo-icon img{width:100%;height:100%;object-fit:contain;}
@@ -84,19 +87,66 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .row-scroll::before{content:'';flex:0 0 var(--gutter);}
 .row-scroll::after{content:'';flex:0 0 var(--gutter);}
 
-.poster{flex-shrink:0;width:118px;scroll-snap-align:start;-webkit-user-select:none;user-select:none;display:block;color:inherit;text-decoration:none;}
-.poster-thumb{width:100%;aspect-ratio:2/3;border-radius:10px;overflow:hidden;position:relative;background:var(--card);border:1px solid var(--border);}
-.poster-thumb .pbg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(14px) brightness(0.5);transform:scale(1.15);}
-.poster-thumb img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity 0.3s;}
+/* ── POSTER CARD ── */
+.poster {
+  flex-shrink:0;
+  width:118px;
+  scroll-snap-align:start;
+  -webkit-user-select:none;
+  user-select:none;
+  display:flex !important;
+  flex-direction:column !important;
+  color:inherit;
+  text-decoration:none;
+  /* Optimasi Performa Virtual */
+  content-visibility: auto;
+  contain-intrinsic-size: 118px 200px;
+}
+.poster-thumb {
+  width:100% !important;
+  aspect-ratio:2/3 !important;
+  border-radius:10px;
+  overflow:hidden;
+  position:relative;
+  background:var(--card);
+  border:1px solid var(--border);
+}
+
+/* Mematikan elemen blur untuk meringankan HP saat scroll */
+.poster-thumb .pbg { display: none !important; } 
+
+.poster-thumb img {
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  display:block !important;
+  opacity:0;
+  transition:opacity 0.3s;
+  z-index:1 !important;
+}
 .poster-thumb img.loaded{opacity:1;}
 .poster-thumb .pph{position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(30,41,59,0.4));}
 
 .poster-rank{position:absolute;top:0px;right:6px;z-index:5;font-size:42px;font-weight:900;line-height:1;font-family:'Impact','Arial Black',sans-serif;color:var(--bg);-webkit-text-stroke:1.8px var(--accent2);filter:drop-shadow(0px 4px 10px rgba(0,0,0,0.95));text-shadow:0px 2px 8px rgba(0,0,0,0.9);pointer-events:none;user-select:none;}
 
-.poster-bookmark{position:absolute;top:6px;left:6px;z-index:6;width:24px;height:24px;border-radius:7px;background:rgba(5,8,16,0.55);backdrop-filter:blur(6px);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;}
+.poster-bookmark{position:absolute;top:6px;left:6px;z-index:6;width:24px;height:24px;border-radius:7px;background:rgba(5,8,16,0.8);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;}
 .poster-bookmark.active{color:var(--gold);border-color:var(--gold);}
 
-.poster-title{margin-top:7px;font-size:11px;font-weight:700;line-height:1.3;min-height:28.6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;opacity:0.92;}
+/* Mengunci tinggi teks agar tidak acak-acakan */
+.poster-title {
+  margin-top:7px;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.3;
+  height:28.6px !important; 
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  opacity:0.92;
+}
 .row-loading{padding:0 16px;font-size:11px;color:var(--text2);opacity:0.6;}
 
 /* ── SEARCH OVERLAY ── */
@@ -113,6 +163,9 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .so-spinner{display:none;align-items:center;justify-content:center;gap:8px;padding:24px 0;font-size:11px;color:var(--accent2);font-weight:700;}
 .so-spinner.show{display:flex;}
 .so-spinner .spinner{width:14px;height:14px;border:2px solid rgba(59,130,246,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
+
+/* Mengatur ukuran grid overlay agar sinkron */
+.so-grid > *, .co-grid > * { width: 100% !important; }
 
 /* ── CATEGORY (VIEW ALL / BOOKMARKS) OVERLAY ── */
 #category-overlay{position:fixed;inset:0;z-index:400;background:var(--bg);display:none;flex-direction:column;}
@@ -218,7 +271,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 </div>
 
 <script>
-// ── CONFIG (backend BACOLTV asli — TIDAK diganti ke Asuplay) ──
+// ── CONFIG ──
 var API         = 'https://vidoy-x.zalpro.workers.dev';
 var ROOT_FOLDER = 'rxk071a6llo';
 var API_KEY     = 'hQwtIQTI22dJubmGhkKl';
@@ -239,10 +292,6 @@ function resolveThumb(v) {
   return t;
 }
 
-// ── SLUG HELPERS ──
-// ASUMSI: format slug mengikuti pola {judul-di-slugify}-{id}, dibaca lagi lewat
-// extractIdFromSlug (functions/_lib/slug.js) yang ambil segmen terakhir setelah hyphen.
-// Cek ulang terhadap slug.js yang sebenarnya sebelum deploy.
 function slugify(text) {
   return String(text || '')
     .toLowerCase()
@@ -319,7 +368,7 @@ function updateBookmarkBadge() {
   else { badge.style.display = 'none'; }
 }
 
-// ── POSTER CARD (navigasi asli ke /watch/:slug, bukan modal) ──
+// ── POSTER CARD ──
 function makePoster(v, rank) {
   var title = v.title || 'Untitled';
   var thumb = resolveThumb(v);
@@ -331,18 +380,15 @@ function makePoster(v, rank) {
   var th = document.createElement('div');
   th.className = 'poster-thumb';
 
-  var bg = document.createElement('div');
-  bg.className = 'pbg';
-  bg.style.backgroundImage = "url('" + thumb + "')";
-  th.appendChild(bg);
-
   var ph = document.createElement('div');
   ph.className = 'pph';
   ph.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><polygon points="9,7 9,17 19,12" fill="rgba(59,130,246,0.5)"/></svg>';
   th.appendChild(ph);
 
   var img = document.createElement('img');
-  img.alt = title; img.loading = 'lazy'; img.decoding = 'async';
+  img.alt = title; 
+  img.loading = 'lazy'; /* Fitur Lazy Load asli dipertahankan */
+  img.decoding = 'async';
   img.onload = function() { this.classList.add('loaded'); ph.style.display = 'none'; };
   img.onerror = function() { this.style.display = 'none'; };
   img.src = thumb;
@@ -436,7 +482,7 @@ function startHeroRotation(pool) {
   }, 6000);
 }
 
-// ── CATEGORY OVERLAY (dipakai untuk: Trending/Discover "Lihat Semua" & Bookmarks — bukan folder asli, jadi tetap in-page) ──
+// ── CATEGORY OVERLAY ──
 var coOverlay = document.getElementById('category-overlay');
 var coTitleEl = document.getElementById('co-title');
 var coGrid    = document.getElementById('co-grid');
@@ -492,9 +538,7 @@ function initApp() {
 
       var currentSeed = sessionSeed();
 
-      // Trending: sampel acak per-session (tidak ada data views real dari backend BACOLTV)
       var trending = seededShuffle(masterVideos, currentSeed).slice(0, ROW_SIZE);
-      // Discover: acakan lain dari seluruh pool
       var discover = seededShuffle(masterVideos, currentSeed + 1);
 
       setHero(discover[0]);
@@ -508,7 +552,6 @@ function initApp() {
         openLocalCategory('Discover', discover);
       }));
 
-      // Baris per-folder asli — "Lihat Semua" -> halaman /category/:slug beneran (ada SEO + ads)
       results.forEach(function(r) {
         if (!r.videos.length) return;
         rowsEl.appendChild(buildRow(r.fld.title, shuffle(r.videos.slice()).slice(0, ROW_SIZE), categoryHref(r.fld)));
@@ -519,7 +562,7 @@ function initApp() {
   });
 }
 
-// ── SEARCH (client-side, backend BACOLTV tidak punya endpoint /api/search) ──
+// ── SEARCH ──
 var searchOverlay = document.getElementById('search-overlay');
 var soInput   = document.getElementById('so-input');
 var soGrid    = document.getElementById('so-grid');
