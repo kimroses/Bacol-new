@@ -1,20 +1,15 @@
 // functions/category/[slug].js
 //
 // Halaman kategori BENERAN: bacoltv.com/category/nama-kategori-{fld_id}
-// Bedanya dengan pola client-side rendering biasa: daftar video di dalam
-// kategori dirender jadi <a href="/watch/..."> LANGSUNG di HTML dari server
-// (lihat renderVideoCards di bawah) — supaya Googlebot bisa lihat & ikuti
-// link video tanpa perlu eksekusi JS dulu. JS di category.html cuma
-// nambahin polish (lazy-load gambar, dll), bukan sumber utama link-nya.
+// Chip subfolder SENGAJA tidak dirender di sini — sudah terwakili lewat
+// tombol "Lihat Semua" per baris kategori di homepage.
 //
 // CARA PASANG:
 // 1. Taruh file ini di: functions/category/[slug].js
 // 2. Taruh category.html di root project, sejajar index.html & watch.html
-//    (pastikan category.html sudah punya <div id="cat-subfolders"> terpisah
-//    dari <div id="cat-grid"> — lihat catatan di percakapan sama Claude)
 // 3. (Disarankan) Set API_KEY sebagai Pages env var
 
-import { extractIdFromSlug, buildCategorySlug, buildWatchSlug, slugify } from '../_lib/slug.js';
+import { extractIdFromSlug, buildCategorySlug, buildWatchSlug } from '../_lib/slug.js';
 
 const API = 'https://vidoy-x.zalpro.workers.dev';
 const SITE_URL = 'https://cdn-videycom.pages.dev'; // ganti ke domain asli kamu
@@ -30,14 +25,6 @@ function escapeHtml(str) {
 function resolveThumb(thumb) {
   if (!thumb) return DEFAULT_IMAGE;
   return thumb.startsWith('/') ? THUMB_HOST + thumb : thumb;
-}
-
-// Beberapa response API nyelipin entri navigasi "balik ke atas" (mis. "← Back",
-// "Kembali", "..") di dalam daftar subfolders — ini BUKAN kategori beneran,
-// jadi harus disaring sebelum dirender jadi chip.
-function isBackNavEntry(title) {
-  var t = String(title || '').trim().toLowerCase();
-  return t === '' || /^(←|<-|\.\.|back|kembali)/.test(t);
 }
 
 function titleFromSlugFallback(slug, id) {
@@ -61,17 +48,6 @@ function renderVideoCards(videos) {
         '<div class="poster-title">' + title + '</div>' +
       '</a>'
     );
-  }).join('');
-}
-
-// Sekarang HANYA ngasilin chip-chip-nya doang (tanpa wrapper <div class="subcat-row">,
-// karena wrapper-nya udah ada di category.html sebagai #cat-subfolders).
-function renderSubfolderChips(subfolders) {
-  var real = (subfolders || []).filter(function(f) { return !isBackNavEntry(f.title); });
-  if (!real.length) return '';
-  return real.map(function(f) {
-    var slug = buildCategorySlug(f.title, f.id);
-    return '<a class="subcat-chip" href="/category/' + slug + '">' + escapeHtml(f.title || 'Kategori') + '</a>';
   }).join('');
 }
 
@@ -106,7 +82,6 @@ async function handle(context) {
   if (!data) return Response.redirect(SITE_URL, 302);
 
   const videos = data.videos || [];
-  const subfolders = (data.subfolders || []).filter(function(f) { return !isBackNavEntry(f.title); });
   const categoryTitle = (data.title || data.name || titleFromSlugFallback(slug, id)).trim();
 
   // 301 ke slug kanonik — masih dimatikan (lihat catatan sebelumnya di percakapan).
@@ -131,7 +106,6 @@ async function handle(context) {
     url: canonicalUrl
   };
 
-  const subfoldersHtml = renderSubfolderChips(subfolders);
   const videosHtml = renderVideoCards(videos);
 
   class HeadRewriter {
@@ -162,12 +136,6 @@ async function handle(context) {
   class HeadingRewriter {
     element(el) { el.setInnerContent(categoryTitle); }
   }
-  class SubfoldersRewriter {
-    element(el) {
-      if (subfoldersHtml) el.setInnerContent(subfoldersHtml, { html: true });
-      else el.setInnerContent('', { html: true });
-    }
-  }
   class GridRewriter {
     element(el) {
       if (videosHtml) {
@@ -183,7 +151,6 @@ async function handle(context) {
     .on('title', new TitleRewriter())
     .on('meta[name="description"]', new DescRewriter())
     .on('#cat-heading', new HeadingRewriter())
-    .on('#cat-subfolders', new SubfoldersRewriter())
     .on('#cat-grid', new GridRewriter())
     .transform(originalResponse);
 }
