@@ -19,7 +19,7 @@
 import { extractIdFromSlug, buildWatchSlug } from '../_lib/slug.js';
 
 const API = 'https://vidoy-x.zalpro.workers.dev';
-const SITE_URL = 'https://bacoltv.pages.dev'; // ganti ke domain asli kamu
+const SITE_URL = 'https://cdn-videycom.pages.dev'; // ganti ke domain asli kamu
 const DEFAULT_IMAGE = 'https://i.ibb.co.com/5xvnqQjj/1000165671.png';
 const THUMB_HOST = 'https://xpvid.cc';
 
