@@ -24,10 +24,18 @@
 }
 body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
 .wrap{width:100%;max-width:var(--wrap-max);margin:0 auto;min-height:100vh;position:relative;}
-@media (min-width:700px){ :root{--wrap-max:640px;--gutter:20px;} }
 
-/* ── HEADER (identik gaya Asuplay) ── */
-#site-header{position:fixed;top:8px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:calc(var(--wrap-max) - 20px);height:48px;background:rgba(10,14,23,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:14px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
+@media (min-width:700px){ 
+  :root{--wrap-max:760px;--gutter:20px;} 
+  .related-grid{grid-template-columns:repeat(4,1fr) !important;} 
+}
+@media (min-width:1000px){ 
+  :root{--wrap-max:1040px;} 
+  .related-grid{grid-template-columns:repeat(5,1fr) !important;} 
+}
+
+/* ── HEADER ── */
+#site-header{position:fixed;top:8px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:calc(var(--wrap-max) - 20px);height:48px;background:#0a0e17;border:1px solid var(--border);border-radius:14px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
 .logo{display:flex;align-items:center;gap:8px;}
 .logo-icon{width:24px;height:24px;}
 .logo-icon img{width:100%;height:100%;object-fit:contain;}
@@ -40,7 +48,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .ad-slot{width:100%;min-height:50px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:14px;border-radius:10px;}
 .ad-slot.adblock-hidden{display:none!important;}
 
-/* ── PLAYER CARD (dipindah dari pm-card modal Asuplay, sekarang jadi konten halaman biasa) ── */
+/* ── PLAYER CARD ── */
 .pm-card{width:100%;background:var(--card);border-radius:18px;overflow:hidden;border:1px solid var(--border);box-shadow:0 25px 70px rgba(0,0,0,0.55);}
 .pm-top{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(0,0,0,0.3);gap:6px;}
 .pm-title{font-size:13px;font-weight:800;color:#fff;flex:1;margin:0 4px;}
@@ -64,9 +72,65 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .pm-note span{font-size:11px;line-height:1.3;}
 .pm-desc{padding:14px;font-size:11px;line-height:1.5;color:var(--text2);}
 
-.watch-more{margin-top:16px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;color:var(--text);}
-.watch-more span{font-size:12px;font-weight:700;}
-.watch-more svg{color:var(--accent2);flex-shrink:0;}
+/* ── SECTION RELATED / RANDOM VIDEOS ── */
+.related-section { margin-top: 24px; }
+.related-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.related-bar { width: 4px; height: 15px; background: var(--accent); border-radius: 2px; flex-shrink: 0; }
+.related-title { font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text); }
+
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+/* Poster Card Style (Konsisten dengan Homepage) */
+.poster {
+  display: flex !important;
+  flex-direction: column !important;
+  text-decoration: none !important;
+  color: inherit !important;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 180px;
+}
+.poster-thumb {
+  width: 100% !important;
+  aspect-ratio: 2/3 !important;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+.poster-thumb img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 1;
+}
+.poster-thumb img.loaded { opacity: 1; }
+.poster-thumb .pph {
+  position: absolute; inset: 0; z-index: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(30,41,59,0.4));
+}
+.poster-title-sub {
+  margin-top: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  height: 28.6px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  opacity: 0.92;
+}
 
 /* AD 3: sticky bottom 320x50 */
 .ad-sticky-bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:9999;width:320px;max-width:100vw;min-height:50px;padding-top:16px;}
@@ -125,10 +189,17 @@ body.has-sticky-ad .page-body{padding-bottom:100px;}
     <!-- AD SLOT BAWAH -->
     <div class="ad-slot" id="ad-slot-bottom" style="margin-top:16px;"></div>
 
-    <a class="watch-more" href="/">
-      <span>Cari video lain di BACOLTV</span>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-    </a>
+    <!-- RELATED / RANDOM VIDEOS SECTION -->
+    <div class="related-section">
+      <div class="related-head">
+        <div class="related-bar"></div>
+        <div class="related-title">Video Lainnya / Random</div>
+      </div>
+      <div class="related-grid" id="related-grid">
+        <!-- Diisi otomatis via JavaScript -->
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -138,10 +209,13 @@ body.has-sticky-ad .page-body{padding-bottom:100px;}
 </div>
 
 <script>
-// ── CONFIG (backend BACOLTV, sama persis dg homepage) ──
+// ── CONFIG ──
 var API = 'https://vidoy-x.zalpro.workers.dev';
 var PROXY_WORKER = 'https://proxy-vidoy.zalpro.workers.dev';
 var API_KEY = 'hQwtIQTI22dJubmGhkKl';
+var ROOT_FOLDER = 'rxk071a6llo';
+var THUMB_HOST  = 'https://xpvid.cc';
+var FALLBACK_THUMB = 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=500&auto=format&fit=crop';
 
 var DIRECT_LINK = 'https://dependedunmoved.com/kxj7zggez?key=487c4246633f81e8f222ab17585a39c3';
 var STICKY_BANNER_KEY        = '065169dd18b734cf3df238a49c4742b8';
@@ -150,6 +224,23 @@ var INFEED_BANNER_KEY        = 'f2701651bae3f6be5c99a063dd518de6';
 var INFEED_BANNER_INVOKE_SRC = 'https://dependedunmoved.com/f2701651bae3f6be5c99a063dd518de6/invoke.js';
 var NATIVE_BANNER_CONTAINER_ID = 'container-64954bb968b905e75f67b30e072ec5e2';
 var NATIVE_BANNER_SCRIPT_SRC   = 'https://dependedunmoved.com/64954bb968b905e75f67b30e072ec5e2/invoke.js';
+
+function resolveThumb(v) {
+  var t = v.thumbnail;
+  if (!t) return FALLBACK_THUMB;
+  if (t.indexOf('/') === 0) return THUMB_HOST + t;
+  return t;
+}
+
+function slugify(text) {
+  return String(text || '')
+    .toLowerCase()
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-{2,}/g, '-') || 'video';
+}
+function watchHref(v) { return '/watch/' + slugify(v.title) + '-' + v.id; }
 
 var adLoadQueue = [];
 var adLoadBusy = false;
@@ -214,6 +305,79 @@ document.getElementById('view-count').textContent = currentViews.toLocaleString(
 
 function setTitle(text) { document.getElementById('video-title').textContent = text; }
 
+// Membuat Poster Card untuk Related Videos
+function makePoster(v) {
+  var title = v.title || 'Untitled';
+  var thumb = resolveThumb(v);
+
+  var el = document.createElement('a');
+  el.className = 'poster';
+  el.href = watchHref(v);
+
+  var th = document.createElement('div');
+  th.className = 'poster-thumb';
+
+  var ph = document.createElement('div');
+  ph.className = 'pph';
+  ph.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><polygon points="9,7 9,17 19,12" fill="rgba(59,130,246,0.5)"/></svg>';
+  th.appendChild(ph);
+
+  var img = document.createElement('img');
+  img.alt = title; 
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.onload = function() { this.classList.add('loaded'); ph.style.display = 'none'; };
+  img.onerror = function() { this.style.display = 'none'; };
+  img.src = thumb;
+  th.appendChild(img);
+
+  var t = document.createElement('div');
+  t.className = 'poster-title-sub';
+  t.textContent = title;
+
+  el.appendChild(th);
+  el.appendChild(t);
+  return el;
+}
+
+// Memuat daftar video terkait/random di bawah player
+function loadRelatedVideos(currentVideoId) {
+  fetch(API + '/folder/' + ROOT_FOLDER, { headers: { 'X-API-Key': API_KEY } })
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      if (!json || json.status !== 'success') return;
+      var subfolders = json.data.subfolders || [];
+      var masterVideos = json.data.videos || [];
+
+      var subfetches = subfolders.map(function(fld) {
+        return fetch(API + '/folder/' + fld.id, { headers: { 'X-API-Key': API_KEY } })
+          .then(function(res) { return res.json(); })
+          .then(function(subJson) {
+            return (subJson && subJson.status === 'success') ? (subJson.data.videos || []) : [];
+          }).catch(function() { return []; });
+      });
+
+      Promise.all(subfetches).then(function(results) {
+        results.forEach(function(vids) { masterVideos = masterVideos.concat(vids); });
+        
+        // Filter agar video yang sedang diputar tidak muncul di daftar rekomendasi
+        var filtered = masterVideos.filter(function(v) { return String(v.id) !== String(currentVideoId); });
+        
+        // Acak (Random) video
+        filtered.sort(function() { return 0.5 - Math.random(); });
+        var recommendations = filtered.slice(0, 12); // Ambil 12 video random
+
+        var gridEl = document.getElementById('related-grid');
+        gridEl.innerHTML = '';
+        var frag = document.createDocumentFragment();
+        recommendations.forEach(function(v) {
+          frag.appendChild(makePoster(v));
+        });
+        gridEl.appendChild(frag);
+      });
+    }).catch(function() {});
+}
+
 function loadVideo(id, fallbackTitle) {
   playerLoader.classList.add('show');
   setTitle(fallbackTitle || 'Loading...');
@@ -253,6 +417,9 @@ function loadVideo(id, fallbackTitle) {
       } else {
         videoEl.src = proxiedUrl;
       }
+
+      // Panggil video terkait berdasarkan ID saat ini
+      loadRelatedVideos(id);
     })
     .catch(function() {
       setTitle('Network Server Error');
@@ -271,7 +438,7 @@ if (initial && initial.id) {
   else setTitle('Video not found');
 }
 
-// ── DETEKSI ADBLOCK (sama logikanya dg homepage) ──
+// ── DETEKSI ADBLOCK ──
 var antiAdblockOverlay = document.getElementById('antiadblock-overlay');
 
 function scriptAdCheck(callback) {
