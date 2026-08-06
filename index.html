@@ -33,19 +33,19 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 @media (min-width:700px){
   :root{--wrap-max:760px;--gutter:20px;}
   .poster{width:135px;}
-  .so-grid,.co-grid,.shorts-grid{grid-template-columns:repeat(4,1fr);}
+  .so-grid,.co-grid{grid-template-columns:repeat(4,1fr);}
   .hero{aspect-ratio:16/9;max-height:55vh;}
 }
 @media (min-width:1000px){
   :root{--wrap-max:1040px;--gutter:24px;}
   .poster{width:150px;}
-  .so-grid,.co-grid,.shorts-grid{grid-template-columns:repeat(5,1fr);}
+  .so-grid,.co-grid{grid-template-columns:repeat(5,1fr);}
   .hero{aspect-ratio:16/7;max-height:55vh;}
 }
 @media (min-width:1320px){
   :root{--wrap-max:1280px;--gutter:28px;}
   .poster{width:165px;}
-  .so-grid,.co-grid,.shorts-grid{grid-template-columns:repeat(6,1fr);}
+  .so-grid,.co-grid{grid-template-columns:repeat(6,1fr);}
 }
 
 /* ── HEADER ── */
@@ -108,14 +108,18 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .so-spinner.show{display:flex;}
 .spinner{width:14px;height:14px;border:2px solid rgba(59,130,246,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
 
-/* ── SHORTS OVERLAY (Grid Gambar / Poster) ── */
-#shorts-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);display:none;flex-direction:column;}
+/* ── SHORTS PLAYER TIKTOK STYLE ── */
+#shorts-overlay{position:fixed;inset:0;z-index:500;background:#000;display:none;flex-direction:column;}
 #shorts-overlay.show{display:flex;}
-.shorts-body{flex:1;overflow-y:auto;padding:16px;padding-bottom:80px;}
-.shorts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.shorts-grid > * { width: 100% !important; }
+.shorts-top-bar{position:absolute;top:0;left:0;width:100%;z-index:510;padding:12px 14px;display:flex;align-items:center;background:linear-gradient(to bottom,rgba(0,0,0,0.7),transparent);}
+.shorts-container{flex:1;width:100%;height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.shorts-container::-webkit-scrollbar{display:none;}
+.short-item{position:relative;width:100%;height:100vh;scroll-snap-align:start;background:#000;display:flex;align-items:center;justify-content:center;}
+.short-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.short-info{position:absolute;bottom:85px;left:16px;right:60px;z-index:510;color:#fff;}
+.short-title{font-size:15px;font-weight:800;line-height:1.3;text-shadow:0 1px 4px rgba(0,0,0,0.9);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 
-/* ── BOTTOM NAV BAR (Sticky seperti Header dengan batas max-width dan border-radius) ── */
+/* ── BOTTOM NAV BAR (Sticky seperti Header) ── */
 .bottom-nav{
   position:fixed;
   bottom:8px;
@@ -132,7 +136,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   align-items:center;
   justify-content:space-around;
   padding:0 10px;
-  box-shadow:0 10px 28px rgba(0,0,0,0.4);
+  box-shadow:0 10px 28px rgba(0,0,0,0.6);
 }
 .nav-item{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:60px;height:100%;background:none;border:none;color:var(--text2);cursor:pointer;transition:color 0.2s;}
 .nav-item.active{color:var(--accent);}
@@ -222,20 +226,17 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </div>
 </div>
 
-<!-- SHORTS OVERLAY (Berisi Grid Poster Gambar Max 2 Menit) -->
-<div id="shorts-overlay" class="overlay-full">
-  <div class="top-bar">
-    <button class="btn-back" id="shorts-back" aria-label="Back">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+<!-- SHORTS OVERLAY (Fullscreen Player) -->
+<div id="shorts-overlay">
+  <div class="shorts-top-bar">
+    <button class="btn-back" id="shorts-back" aria-label="Back" style="color:#fff;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
-    <span class="co-title">Shorts Video</span>
+    <span style="color:#fff;font-weight:800;margin-left:8px;font-size:16px;">Shorts</span>
   </div>
-  <div class="shorts-body" id="shorts-scroll">
-    <div class="shorts-grid" id="shorts-grid"></div>
+  <div class="shorts-container" id="shorts-container">
+    <!-- Video Player items will be appended here -->
   </div>
-  <button class="scroll-top-btn in-overlay" id="scroll-top-shorts" aria-label="Scroll to top">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-  </button>
 </div>
 
 <!-- BOTTOM NAV (Sticky mirip Header) -->
@@ -469,6 +470,7 @@ function closeAllOverlays() {
   searchOverlay.classList.remove('show');
   categoryOverlay.classList.remove('show');
   shortsOverlay.classList.remove('show');
+  pauseAllShorts(); // Pause shorts saat pindah menu
 }
 
 document.getElementById('nav-home').onclick = function() {
@@ -528,33 +530,89 @@ soInput.addEventListener('input', function() {
   }, 350);
 });
 
-// ── SHORTS LOGIC (Hanya Menampilkan Poster Gambar Durasi <= 2 Menit) ──
-var shortsGrid = document.getElementById('shorts-grid');
-var shortsScroll = document.getElementById('shorts-scroll');
+// ── SHORTS PLAYER LOGIC (Fullscreen & Auto-play) ──
+var shortsObserver = null;
+
+function pauseAllShorts() {
+  var vids = document.querySelectorAll('.short-video');
+  vids.forEach(function(vid) {
+    if (!vid.paused) vid.pause();
+  });
+}
 
 function openShorts() {
-  shortsGrid.innerHTML = '';
-  shortsScroll.scrollTop = 0;
+  var container = document.getElementById('shorts-container');
+  container.innerHTML = '';
   
-  // Memfilter video yang durasinya <= 120 detik (2 menit). Jika properti duration tidak ada di API, fallback ke seluruh video.
+  // Mencoba filter durasi max 2 menit, fallback ke semua video jika tidak ada meta durasi
   var shortsList = masterVideos.filter(function(v) {
     return (v.duration && v.duration <= 120) || true;
   });
-
-  shortsList = shuffle(shortsList);
+  shortsList = shuffle(shortsList).slice(0, 20); // Dibatasi 20 video untuk performa per satu kali buka
 
   if (!shortsList.length) {
-    shortsGrid.innerHTML = '<div class="empty-msg">Belum ada video shorts</div>';
-    shortsOverlay.classList.add('show');
+    container.innerHTML = '<div style="color:#fff;text-align:center;padding:100px 20px;">Belum ada video shorts</div>';
+    document.getElementById('shorts-overlay').classList.add('show');
     return;
   }
 
-  var frag = document.createDocumentFragment();
   shortsList.forEach(function(v) {
-    frag.appendChild(makePoster(v));
+    var item = document.createElement('div');
+    item.className = 'short-item';
+
+    // Direct url berdasarkan format proxy atau URL file yang disediakan API
+    var videoUrl = v.file || v.url || ('https://proxy-vidoy.zalpro.workers.dev/https://mp4-03.overfetch.video/' + v.id);
+
+    var video = document.createElement('video');
+    video.className = 'short-video';
+    video.loop = true;
+    video.muted = false; // Menggunakan suara (terkadang tertahan oleh browser tanpa interaksi, tapi klik nav button terhitung interaksi)
+    video.setAttribute('playsinline', '');
+    video.setAttribute('data-src', videoUrl);
+    video.poster = resolveThumb(v);
+    
+    // Play & Pause ketika di tap
+    video.onclick = function() {
+      if (video.paused) video.play();
+      else video.pause();
+    };
+
+    var info = document.createElement('div');
+    info.className = 'short-info';
+    info.innerHTML = '<div class="short-title">' + (v.title || 'Untitled') + '</div>';
+
+    item.appendChild(video);
+    item.appendChild(info);
+    container.appendChild(item);
   });
-  shortsGrid.appendChild(frag);
-  shortsOverlay.classList.add('show');
+
+  document.getElementById('shorts-overlay').classList.add('show');
+
+  // Bersihkan observer lama jika ada
+  if (shortsObserver) shortsObserver.disconnect();
+
+  // Setup Intersection Observer (Play/Pause otomatis saat di-scroll)
+  shortsObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      var vid = entry.target.querySelector('video');
+      if (entry.isIntersecting) {
+        if (!vid.src) vid.src = vid.getAttribute('data-src');
+        vid.play().catch(function(e){ console.log("Autoplay dicegah:", e); });
+      } else {
+        if (!vid.paused) {
+          vid.pause();
+          vid.currentTime = 0; // opsional: kembali ke awal ketika lewat
+        }
+      }
+    });
+  }, {
+    threshold: 0.6 // Harus masuk viewport minimal 60% baru terhitung
+  });
+
+  var items = container.querySelectorAll('.short-item');
+  items.forEach(function(i) {
+    shortsObserver.observe(i);
+  });
 }
 
 // ── SCROLL TO TOP ──
@@ -565,10 +623,6 @@ scrollTopHome.onclick = function() { window.scrollTo({ top: 0, behavior: 'smooth
 var scrollTopCo = document.getElementById('scroll-top-co');
 coScroll.addEventListener('scroll', function() { scrollTopCo.classList.toggle('show', coScroll.scrollTop > 400); }, { passive: true });
 scrollTopCo.onclick = function() { coScroll.scrollTo({ top: 0, behavior: 'smooth' }); };
-
-var scrollTopShorts = document.getElementById('scroll-top-shorts');
-shortsScroll.addEventListener('scroll', function() { scrollTopShorts.classList.toggle('show', shortsScroll.scrollTop > 400); }, { passive: true });
-scrollTopShorts.onclick = function() { shortsScroll.scrollTo({ top: 0, behavior: 'smooth' }); };
 
 updateBookmarkBadge();
 initApp();
