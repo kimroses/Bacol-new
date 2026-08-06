@@ -10,6 +10,8 @@
 // CARA PASANG:
 // 1. Taruh file ini di: functions/category/[slug].js
 // 2. Taruh category.html di root project, sejajar index.html & watch.html
+//    (pastikan category.html sudah punya <div id="cat-subfolders"> terpisah
+//    dari <div id="cat-grid"> — lihat catatan di percakapan sama Claude)
 // 3. (Disarankan) Set API_KEY sebagai Pages env var
 
 import { extractIdFromSlug, buildCategorySlug, buildWatchSlug, slugify } from '../_lib/slug.js';
@@ -30,9 +32,14 @@ function resolveThumb(thumb) {
   return thumb.startsWith('/') ? THUMB_HOST + thumb : thumb;
 }
 
-// Judul kategori dipakai buat <title>/meta. Kalau API tidak balikin field
-// judul folder secara eksplisit, turunkan dari bagian judul di slug URL
-// (mis. "film-aksi-terbaru-xyz123" -> "film aksi terbaru").
+// Beberapa response API nyelipin entri navigasi "balik ke atas" (mis. "← Back",
+// "Kembali", "..") di dalam daftar subfolders — ini BUKAN kategori beneran,
+// jadi harus disaring sebelum dirender jadi chip.
+function isBackNavEntry(title) {
+  var t = String(title || '').trim().toLowerCase();
+  return t === '' || /^(←|<-|\.\.|back|kembali)/.test(t);
+}
+
 function titleFromSlugFallback(slug, id) {
   var body = slug.slice(0, slug.length - id.length).replace(/-$/, '');
   var words = body.split('-').filter(Boolean);
@@ -57,12 +64,15 @@ function renderVideoCards(videos) {
   }).join('');
 }
 
+// Sekarang HANYA ngasilin chip-chip-nya doang (tanpa wrapper <div class="subcat-row">,
+// karena wrapper-nya udah ada di category.html sebagai #cat-subfolders).
 function renderSubfolderChips(subfolders) {
-  if (!subfolders || !subfolders.length) return '';
-  return '<div class="subcat-row">' + subfolders.map(function(f) {
+  var real = (subfolders || []).filter(function(f) { return !isBackNavEntry(f.title); });
+  if (!real.length) return '';
+  return real.map(function(f) {
     var slug = buildCategorySlug(f.title, f.id);
     return '<a class="subcat-chip" href="/category/' + slug + '">' + escapeHtml(f.title || 'Kategori') + '</a>';
-  }).join('') + '</div>';
+  }).join('');
 }
 
 export async function onRequest(context) {
@@ -96,14 +106,14 @@ async function handle(context) {
   if (!data) return Response.redirect(SITE_URL, 302);
 
   const videos = data.videos || [];
-  const subfolders = data.subfolders || [];
+  const subfolders = (data.subfolders || []).filter(function(f) { return !isBackNavEntry(f.title); });
   const categoryTitle = (data.title || data.name || titleFromSlugFallback(slug, id)).trim();
 
-  // 301 ke slug kanonik kalau bagian judul di URL tidak sesuai judul asli
-  const canonicalSlug = buildCategorySlug(categoryTitle, id);
-  if (slug !== canonicalSlug) {
-    return Response.redirect(SITE_URL + '/category/' + canonicalSlug, 301);
-  }
+  // 301 ke slug kanonik — masih dimatikan (lihat catatan sebelumnya di percakapan).
+  // const canonicalSlug = buildCategorySlug(categoryTitle, id);
+  // if (slug !== canonicalSlug) {
+  //   return Response.redirect(SITE_URL + '/category/' + canonicalSlug, 301);
+  // }
 
   const assetUrl = new URL('/category', request.url);
   const originalResponse = await env.ASSETS.fetch(new Request(assetUrl, request));
@@ -111,7 +121,7 @@ async function handle(context) {
   const pageTitle = categoryTitle + ' - Nonton Streaming | BACOLTV';
   const description = 'Kumpulan video ' + categoryTitle + ' streaming online gratis di BACOLTV. ' + videos.length + ' video tersedia, kualitas HD.';
   const image = videos.length ? resolveThumb(videos[0].thumbnail) : DEFAULT_IMAGE;
-  const canonicalUrl = SITE_URL + '/category/' + canonicalSlug;
+  const canonicalUrl = SITE_URL + '/category/' + slug;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -121,7 +131,8 @@ async function handle(context) {
     url: canonicalUrl
   };
 
-  const gridHtml = renderSubfolderChips(subfolders) + renderVideoCards(videos);
+  const subfoldersHtml = renderSubfolderChips(subfolders);
+  const videosHtml = renderVideoCards(videos);
 
   class HeadRewriter {
     element(el) {
@@ -151,10 +162,16 @@ async function handle(context) {
   class HeadingRewriter {
     element(el) { el.setInnerContent(categoryTitle); }
   }
+  class SubfoldersRewriter {
+    element(el) {
+      if (subfoldersHtml) el.setInnerContent(subfoldersHtml, { html: true });
+      else el.setInnerContent('', { html: true });
+    }
+  }
   class GridRewriter {
     element(el) {
-      if (videos.length || subfolders.length) {
-        el.setInnerContent(gridHtml, { html: true });
+      if (videosHtml) {
+        el.setInnerContent(videosHtml, { html: true });
       } else {
         el.setInnerContent('<div class="cat-empty">Belum ada video di kategori ini</div>', { html: true });
       }
@@ -166,6 +183,7 @@ async function handle(context) {
     .on('title', new TitleRewriter())
     .on('meta[name="description"]', new DescRewriter())
     .on('#cat-heading', new HeadingRewriter())
+    .on('#cat-subfolders', new SubfoldersRewriter())
     .on('#cat-grid', new GridRewriter())
     .transform(originalResponse);
 }
