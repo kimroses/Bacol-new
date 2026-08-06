@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+
+<!-- Mencegah Browser HP Menyimpan Cache (Agar langsung update) -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
 <title>bacoltv</title>
 <meta name="description" content="bacoltv — Free video streaming"/>
 <meta name="theme-color" content="#0a0e17"/>
@@ -47,14 +53,14 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   align-items:stretch;
 }
 
-/* Proteksi jika ada elemen iklan disuntikkan ke dalam grid */
+/* Proteksi Iklan agar tidak masuk ke kolom grid */
 .co-grid .ad-slot,
 .co-grid [id^="container-"] {
   grid-column: 1 / -1 !important;
   width: 100% !important;
 }
 
-/* ── POSTER CARD (DIPROTEKSI DARI SKRIP IKLAN) ── */
+/* ── POSTER CARD SUPER KETAT ── */
 .poster {
   text-decoration:none;
   color:var(--text);
@@ -66,15 +72,17 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   user-select:none;
 }
 
+/* Trik Padding-Bottom untuk mengunci ukuran rasio 2:3 secara mutlak */
 .poster-thumb {
-  width:100% !important;
-  aspect-ratio:2/3 !important;
-  border-radius:10px;
-  overflow:hidden;
-  position:relative;
-  background:var(--card);
-  border:1px solid var(--border);
-  flex-shrink:0 !important;
+  width: 100% !important;
+  height: 0 !important; 
+  padding-bottom: 150% !important; 
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative !important;
+  background: var(--card);
+  border: 1px solid var(--border);
+  flex-shrink: 0 !important;
 }
 
 .poster-thumb .pbg {
@@ -100,12 +108,13 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   z-index:1 !important;
 }
 
+/* Mengunci tinggi judul agar sejajar jika ada yg 1 baris vs 2 baris */
 .poster-title {
   margin-top:7px;
   font-size:11px;
   font-weight:700;
   line-height:1.3;
-  height:28.6px;
+  height:28.6px !important;
   display:-webkit-box;
   -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
@@ -128,7 +137,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </header>
 
   <div class="page-body">
-    <!-- Diisi server-side oleh functions/category/[slug].js -->
+    <!-- Diisi otomatis oleh backend/Cloudflare Workers -->
     <div class="co-grid" id="cat-grid"></div>
   </div>
 </div>
