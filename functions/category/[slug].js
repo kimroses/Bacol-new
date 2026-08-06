@@ -99,11 +99,13 @@ async function handle(context) {
   const subfolders = data.subfolders || [];
   const categoryTitle = (data.title || data.name || titleFromSlugFallback(slug, id)).trim();
 
-  // 301 ke slug kanonik kalau bagian judul di URL tidak sesuai judul asli
-  const canonicalSlug = buildCategorySlug(categoryTitle, id);
-  if (slug !== canonicalSlug) {
-    return Response.redirect(SITE_URL + '/category/' + canonicalSlug, 301);
-  }
+  // 301 ke slug kanonik — SEMENTARA DIMATIKAN buat debug (lihat percakapan sama Claude).
+  // Alasan dimatikan: kalau categoryTitle dari API beda dikit sama judul di URL,
+  // baris ini bikin redirect balik ke /category polos alih-alih ke slug yang benar.
+  // const canonicalSlug = buildCategorySlug(categoryTitle, id);
+  // if (slug !== canonicalSlug) {
+  //   return Response.redirect(SITE_URL + '/category/' + canonicalSlug, 301);
+  // }
 
   const assetUrl = new URL('/category.html', request.url);
   const originalResponse = await env.ASSETS.fetch(new Request(assetUrl, request));
@@ -111,7 +113,7 @@ async function handle(context) {
   const pageTitle = categoryTitle + ' - Nonton Streaming | BACOLTV';
   const description = 'Kumpulan video ' + categoryTitle + ' streaming online gratis di BACOLTV. ' + videos.length + ' video tersedia, kualitas HD.';
   const image = videos.length ? resolveThumb(videos[0].thumbnail) : DEFAULT_IMAGE;
-  const canonicalUrl = SITE_URL + '/category/' + canonicalSlug;
+  const canonicalUrl = SITE_URL + '/category/' + slug;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -168,5 +170,4 @@ async function handle(context) {
     .on('#cat-heading', new HeadingRewriter())
     .on('#cat-grid', new GridRewriter())
     .transform(originalResponse);
-                }
-            
+}
