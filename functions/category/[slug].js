@@ -107,7 +107,7 @@ async function handle(context) {
   //   return Response.redirect(SITE_URL + '/category/' + canonicalSlug, 301);
   // }
 
-  const assetUrl = new URL('/category.html', request.url);
+  const assetUrl = new URL('/category', request.url);
   const originalResponse = await env.ASSETS.fetch(new Request(assetUrl, request));
 
   const pageTitle = categoryTitle + ' - Nonton Streaming | BACOLTV';
