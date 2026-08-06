@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 
-<!-- Mencegah Browser HP Menyimpan Cache (Agar langsung update) -->
+<!-- Mencegah Browser HP Menyimpan Cache -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -13,6 +13,7 @@
 <meta name="description" content="bacoltv — Free video streaming"/>
 <meta name="theme-color" content="#0a0e17"/>
 <link rel="icon" type="image/png" href="https://i.ibb.co.com/5xvnqQjj/1000165671.png"/>
+
 <style>
 *{-webkit-tap-highlight-color:transparent;box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -22,7 +23,6 @@
   --text:#f1f5f9;
   --text2:#8b95a7;
   --accent:#3b82f6;
-  --accent2:#60a5fa;
   --gutter:16px;
   --wrap-max:520px;
 }
@@ -31,11 +31,11 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 @media (min-width:700px){ 
   :root{--wrap-max:760px;--gutter:20px;} 
-  .co-grid{grid-template-columns:repeat(4,1fr);} 
+  #cat-grid{grid-template-columns:repeat(4,1fr) !important;} 
 }
 @media (min-width:1000px){ 
   :root{--wrap-max:1040px;} 
-  .co-grid{grid-template-columns:repeat(5,1fr);} 
+  #cat-grid{grid-template-columns:repeat(5,1fr) !important;} 
 }
 
 #site-header{position:fixed;top:8px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:calc(var(--wrap-max) - 20px);height:48px;background:rgba(10,14,23,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:14px;z-index:60;display:flex;align-items:center;gap:10px;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
@@ -43,84 +43,70 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .logo-text{font-size:15px;font-weight:900;letter-spacing:0.06em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 .page-body{padding:70px var(--gutter) 40px;}
-.cat-title{font-size:18px;font-weight:900;letter-spacing:0.02em;text-transform:uppercase;margin-bottom:16px;}
 
-/* ── GRID SYSTEM ── */
-.co-grid{
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:10px;
-  align-items:stretch;
-}
-
-/* Proteksi Iklan agar tidak masuk ke kolom grid */
-.co-grid .ad-slot,
-.co-grid [id^="container-"] {
-  grid-column: 1 / -1 !important;
+/* ── UNIVERSAL GRID RESET (Memaksa semua output JS rapi) ── */
+#cat-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 10px !important;
+  align-items: start !important;
   width: 100% !important;
 }
 
-/* ── POSTER CARD SUPER KETAT ── */
-.poster {
-  text-decoration:none;
-  color:var(--text);
-  display:flex !important;
-  flex-direction:column !important;
-  height:100% !important;
-  cursor:pointer;
-  -webkit-user-select:none;
-  user-select:none;
+/* Memaksa SETIAP CARD di dalam grid berukuran persis sama */
+#cat-grid > * {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  text-decoration: none !important;
+  color: var(--text) !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
 }
 
-/* Trik Padding-Bottom untuk mengunci ukuran rasio 2:3 secara mutlak */
-.poster-thumb {
+/* Memaksa PEMBUNGKUS GAMBAR terkunci di rasio 2:3 */
+#cat-grid > * > div:first-child,
+#cat-grid .poster-thumb,
+#cat-grid [class*="thumb"] {
   width: 100% !important;
-  height: 0 !important; 
-  padding-bottom: 150% !important; 
-  border-radius: 10px;
-  overflow: hidden;
+  height: 0 !important;
+  padding-bottom: 145% !important; /* Mengunci rasio kotak memanjang */
   position: relative !important;
-  background: var(--card);
-  border: 1px solid var(--border);
+  overflow: hidden !important;
+  border-radius: 10px !important;
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
   flex-shrink: 0 !important;
 }
 
-.poster-thumb .pbg {
-  position:absolute !important;
-  inset:0 !important;
-  background-size:cover;
-  background-position:center;
-  filter:blur(14px) brightness(0.5);
-  transform:scale(1.15);
+/* Memaksa SEMUA GAMBAR terpotong rapi di tengah (Crop) tanpa merusak rasio */
+#cat-grid img {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important; /* Trik kunci agar gambar tidak gepeng/melar */
+  border-radius: 10px !important;
+  display: block !important;
 }
 
-/* Mengunci ukuran gambar agar tidak dirusak skrip iklan */
-.poster-thumb img {
-  position:absolute !important;
-  top:0 !important;
-  left:0 !important;
-  width:100% !important;
-  height:100% !important;
-  max-width:100% !important;
-  max-height:100% !important;
-  object-fit:cover !important;
-  display:block !important;
-  z-index:1 !important;
-}
-
-/* Mengunci tinggi judul agar sejajar jika ada yg 1 baris vs 2 baris */
-.poster-title {
-  margin-top:7px;
-  font-size:11px;
-  font-weight:700;
-  line-height:1.3;
-  height:28.6px !important;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-  opacity:0.92;
-  flex-grow:1;
+/* Memaksa TULISAN JUDUL rata 2 baris untuk semua item */
+#cat-grid > * p,
+#cat-grid > * span,
+#cat-grid .poster-title,
+#cat-grid [class*="title"] {
+  margin-top: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  height: 28.6px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  color: var(--text) !important;
+  opacity: 0.92 !important;
 }
 
 .cat-empty{grid-column:1/-1;text-align:center;padding:60px 0;font-size:12px;color:var(--text2);opacity:0.7;}
@@ -137,8 +123,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </header>
 
   <div class="page-body">
-    <!-- Diisi otomatis oleh backend/Cloudflare Workers -->
-    <div class="co-grid" id="cat-grid"></div>
+    <div id="cat-grid"></div>
   </div>
 </div>
 
