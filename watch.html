@@ -51,7 +51,6 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .pm-card{width:100%;background:var(--card);border-radius:18px;overflow:hidden;border:1px solid var(--border);box-shadow:0 25px 70px rgba(0,0,0,0.55);}
 .pm-top{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(0,0,0,0.3);gap:6px;}
 .pm-title{font-size:13px;font-weight:800;color:#fff;flex:1;margin:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pm-views{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2);font-weight:700;flex-shrink:0;}
 .pm-player{width:100%;aspect-ratio:16/9;background:#000;position:relative;}
 .pm-player video{width:100%;height:100%;display:block;object-fit:contain;background:#000;}
 .pm-loader{position:absolute;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:1;visibility:visible;transition:opacity 0.2s,visibility 0.2s;z-index:5;}
@@ -66,83 +65,29 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .antiadblock-icon{width:34px;height:34px;color:var(--accent2);margin-bottom:10px;}
 .antiadblock-title{color:#fff;font-size:14px;font-weight:800;margin-bottom:6px;}
 .antiadblock-desc{color:var(--text2);font-size:11px;line-height:1.5;}
-.pm-note{display:flex;align-items:center;gap:6px;margin:12px 14px 14px;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text2);}
-.pm-note svg{flex-shrink:0;color:var(--accent2);}
-.pm-note span{font-size:11px;line-height:1.3;}
 
-/* ── RELATED / RANDOM VIDEOS (PERBAIKAN LAYOUT PERMANEN) ── */
+/* ── ACTION BAR (CAPSULE) & SEO DESC ── */
+.pm-actions{display:flex;align-items:center;justify-content:space-around;margin:12px 14px;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;}
+.action-btn{background:none;border:none;color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;padding:4px;}
+.action-btn:active,.action-btn.active{color:var(--accent);transform:scale(0.92);}
+.action-btn svg{width:18px;height:18px;}
+
+.seo-desc{margin:0 14px 14px;font-size:11px;color:var(--text2);line-height:1.4;}
+.seo-desc b{color:var(--text);font-weight:700;}
+
+/* ── RELATED / RANDOM VIDEOS ── */
 .related-section { margin-top:20px; }
 .related-head { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
 .related-bar { width:4px; height:14px; background:var(--accent); border-radius:2px; flex-shrink:0; }
 .related-title { font-size:12px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; color:var(--text); }
+.related-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100%; }
 
-/* Grid Kunci Ukuran: minmax(0, 1fr) mencegah kolom mekar sendiri */
-.related-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  width: 100%;
-}
-
-.poster {
-  display: flex !important;
-  flex-direction: column !important;
-  text-decoration: none !important;
-  color: inherit !important;
-  width: 100% !important;
-  min-width: 0 !important; /* Mencegah overflow teks merusak lebar kartu */
-}
-
-.poster-thumb {
-  width: 100% !important;
-  aspect-ratio: 2 / 3 !important; /* Kunci rasio gambar seragam */
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-  background: var(--card);
-  border: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.poster-thumb img {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important; /* Mencegah gambar gepeng / beda ukuran */
-  display: block !important;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
+.poster { display: flex !important; flex-direction: column !important; text-decoration: none !important; color: inherit !important; width: 100% !important; min-width: 0 !important; }
+.poster-thumb { width: 100% !important; aspect-ratio: 2 / 3 !important; border-radius: 10px; overflow: hidden; position: relative; background: var(--card); border: 1px solid var(--border); flex-shrink: 0; }
+.poster-thumb img { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; opacity: 0; transition: opacity 0.3s; }
 .poster-thumb img.loaded { opacity: 1; }
-
-.poster-thumb .pph {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.03);
-}
-
-.poster-title-sub {
-  margin-top: 6px !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  line-height: 1.3 !important;
-  height: 28.6px !important; /* Kunci tinggi persis 2 baris teks */
-  display: -webkit-box !important;
-  -webkit-line-clamp: 2 !important;
-  -webkit-box-orient: vertical !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  word-break: break-word;
-  opacity: 0.92;
-}
-
-.watch-more{margin-top:16px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;color:var(--text);}
-.watch-more span{font-size:12px;font-weight:700;}
-.watch-more svg{color:var(--accent2);flex-shrink:0;}
+.poster-thumb .pph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); }
+.poster-title-sub { margin-top: 6px !important; font-size: 11px !important; font-weight: 700 !important; line-height: 1.3 !important; height: 28.6px !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; text-overflow: ellipsis !important; word-break: break-word; opacity: 0.92; }
 
 /* AD 3: sticky bottom 320x50 */
 .ad-sticky-bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:9999;width:320px;max-width:100vw;min-height:50px;padding-top:16px;}
@@ -169,14 +114,10 @@ body.has-sticky-ad .page-body{padding-bottom:100px;}
     <!-- AD SLOT ATAS -->
     <div class="ad-slot" id="ad-slot-top"></div>
 
-    <!-- PLAYER CARD CUSTOM (ORIGINAL) -->
+    <!-- PLAYER CARD CUSTOM (COMPACT) -->
     <div class="pm-card">
       <div class="pm-top">
         <span class="pm-title" id="video-title">Loading...</span>
-        <span class="pm-views">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="#facc15"><polygon points="12,2 15,9 22,9.5 16.5,14.5 18.5,22 12,17.8 5.5,22 7.5,14.5 2,9.5 9,9"/></svg>
-          <span id="view-count">0</span>
-        </span>
       </div>
       <div class="pm-player">
         <video id="main-player" playsinline controls></video>
@@ -186,7 +127,7 @@ body.has-sticky-ad .page-body{padding-bottom:100px;}
         </div>
         <div class="ad-direct-overlay" id="ad-direct-overlay"></div>
         
-        <!-- ANTI ADBLOCK OVERLAY ORIGINAL -->
+        <!-- ANTI ADBLOCK OVERLAY -->
         <div class="antiadblock-overlay" id="antiadblock-overlay">
           <div>
             <svg class="antiadblock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>
@@ -195,9 +136,26 @@ body.has-sticky-ad .page-body{padding-bottom:100px;}
           </div>
         </div>
       </div>
-      <div class="pm-note">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="8.01"/><line x1="12" y1="11" x2="12" y2="16"/></svg>
-        <span>Jika video <b>ERROR</b>, pakai <b>VPN</b> atau coba reload halaman</span>
+      
+      <!-- ACTION BAR CAPSULE -->
+      <div class="pm-actions">
+        <!-- Share -->
+        <button class="action-btn" id="btn-share" aria-label="Share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+        <!-- Bookmark -->
+        <button class="action-btn" id="btn-bookmark" aria-label="Bookmark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <!-- Download -->
+        <button class="action-btn" id="btn-download" aria-label="Download">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+      </div>
+
+      <!-- SEO DESCRIPTION -->
+      <div class="seo-desc">
+        Nonton streaming <b id="seo-title-inject">...</b> online gratis dengan kualitas terbaik. Nikmati koleksi hiburan tanpa batas kapan saja dan di mana saja hanya di BACOLTV.
       </div>
     </div>
 
@@ -214,11 +172,6 @@ body.has-sticky-ad .page-body{padding-bottom:100px;}
         <!-- Card dimuat via JS -->
       </div>
     </div>
-
-    <a class="watch-more" href="/" style="margin-top:20px;">
-      <span>Cari video lain di BACOLTV</span>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-    </a>
   </div>
 </div>
 
@@ -243,6 +196,8 @@ var INFEED_BANNER_KEY        = 'f2701651bae3f6be5c99a063dd518de6';
 var INFEED_BANNER_INVOKE_SRC = 'https://dependedunmoved.com/f2701651bae3f6be5c99a063dd518de6/invoke.js';
 var NATIVE_BANNER_CONTAINER_ID = 'container-64954bb968b905e75f67b30e072ec5e2';
 var NATIVE_BANNER_SCRIPT_SRC   = 'https://dependedunmoved.com/64954bb968b905e75f67b30e072ec5e2/invoke.js';
+
+var currentVideoData = null;
 
 function resolveThumb(v) {
   var t = v.thumbnail;
@@ -320,10 +275,12 @@ videoEl.addEventListener('loadeddata', function() { playerLoader.classList.remov
 videoEl.addEventListener('playing', function() { playerLoader.classList.remove('show'); });
 
 var hlsInstance = null;
-var currentViews = Math.floor(Math.random() * 53000 + 13000);
-document.getElementById('view-count').textContent = currentViews.toLocaleString('id-ID');
 
-function setTitle(text) { document.getElementById('video-title').textContent = text; }
+function setTitle(text) { 
+  document.getElementById('video-title').textContent = text;
+  var seoInject = document.getElementById('seo-title-inject');
+  if (seoInject) seoInject.textContent = text;
+}
 
 // Render Poster Related (Fixed Lock)
 function makePoster(v) {
@@ -414,9 +371,20 @@ function loadVideo(id, fallbackTitle) {
         playerLoader.classList.remove('show');
         return;
       }
-      setTitle(json.data.title || fallbackTitle || 'Untitled');
+      var finalTitle = json.data.title || fallbackTitle || 'Untitled';
+      setTitle(finalTitle);
 
       var proxiedUrl = PROXY_WORKER + '/' + rawUrl;
+
+      // Simpan data untuk aksi tombol
+      currentVideoData = {
+        id: id,
+        title: finalTitle,
+        thumbnail: json.data.thumbnail || '',
+        downloadUrl: proxiedUrl
+      };
+      checkBookmarkStatus();
+
       if (hlsInstance) hlsInstance.destroy();
       var isHls = (json.data.format === 'hls') || (!json.data.format && rawUrl.includes('.m3u8'));
 
@@ -454,7 +422,58 @@ if (initial && initial.id) {
   else setTitle('Video not found');
 }
 
-// ── DETEKSI ADBLOCK ORIGINAL ──
+// ── LOGIKA TOMBOL AKSI ──
+document.getElementById('btn-share').onclick = function() {
+  var url = window.location.href;
+  var title = currentVideoData ? currentVideoData.title : 'BACOLTV Video';
+  if (navigator.share) {
+    navigator.share({ title: title, url: url }).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(url);
+    alert('Link video berhasil disalin!');
+  }
+};
+
+var BOOKMARK_KEY = 'bt_bookmarks';
+function getBookmarks() { try { return JSON.parse(localStorage.getItem(BOOKMARK_KEY)) || []; } catch (e) { return []; } }
+function saveBookmarks(list) { try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify(list)); } catch (e) {} }
+
+var btnBookmark = document.getElementById('btn-bookmark');
+function checkBookmarkStatus() {
+  if (!currentVideoData) return;
+  var list = getBookmarks();
+  var isBookmarked = list.some(function(b) { return String(b.id) === String(currentVideoData.id); });
+  btnBookmark.classList.toggle('active', isBookmarked);
+}
+
+btnBookmark.onclick = function() {
+  if (!currentVideoData) return;
+  var list = getBookmarks();
+  var idx = -1;
+  for (var i = 0; i < list.length; i++) { 
+    if (String(list[i].id) === String(currentVideoData.id)) { idx = i; break; } 
+  }
+  
+  if (idx > -1) {
+    list.splice(idx, 1);
+    btnBookmark.classList.remove('active');
+  } else {
+    list.unshift({ id: currentVideoData.id, title: currentVideoData.title, thumbnail: currentVideoData.thumbnail });
+    btnBookmark.classList.add('active');
+  }
+  saveBookmarks(list);
+};
+
+document.getElementById('btn-download').onclick = function() {
+  if (!currentVideoData || !currentVideoData.downloadUrl) {
+    alert('URL unduhan belum tersedia.');
+    return;
+  }
+  window.open(currentVideoData.downloadUrl, '_blank');
+};
+
+
+// ── DETEKSI ADBLOCK ──
 var antiAdblockOverlay = document.getElementById('antiadblock-overlay');
 
 function scriptAdCheck(callback) {
