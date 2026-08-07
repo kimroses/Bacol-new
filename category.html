@@ -38,9 +38,13 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   #cat-grid{grid-template-columns:repeat(5,1fr) !important;} 
 }
 
-#site-header{position:fixed;top:8px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:calc(var(--wrap-max) - 20px);height:48px;background:rgba(10,14,23,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:14px;z-index:60;display:flex;align-items:center;gap:10px;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
-.hdr-back{background:none;border:none;color:var(--text);opacity:0.85;cursor:pointer;display:flex;padding:4px;text-decoration:none;flex-shrink:0;}
+#site-header{position:fixed;top:8px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:calc(var(--wrap-max) - 20px);height:48px;background:rgba(10,14,23,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:14px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
+.hdr-icon-btn{position:relative;background:none;border:none;color:var(--text);opacity:0.9;cursor:pointer;display:flex;padding:4px;text-decoration:none;flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
+.logo-icon{width:24px;height:24px;}
+.logo-icon img{width:100%;height:100%;object-fit:contain;}
 .logo-text{font-size:15px;font-weight:900;letter-spacing:0.06em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hdr-badge{position:absolute;top:-2px;right:-4px;min-width:14px;height:14px;padding:0 3px;border-radius:8px;background:#ef4444;color:#fff;font-size:8px;font-weight:800;display:none;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--bg);}
 
 .page-body{padding:70px var(--gutter) 40px;}
 
@@ -79,6 +83,9 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   flex-shrink: 0 !important;
 }
 
+.poster-bookmark{position:absolute;top:6px;left:6px;z-index:6;width:24px;height:24px;border-radius:7px;background:rgba(5,8,16,0.8);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;}
+.poster-bookmark.active{color:#facc15;border-color:#facc15;}
+
 /* Memaksa SEMUA GAMBAR terpotong rapi di tengah (Crop) tanpa merusak rasio */
 #cat-grid img {
   position: absolute !important;
@@ -116,16 +123,95 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 <div class="wrap">
   <header id="site-header">
-    <a class="hdr-back" href="/" aria-label="Back to home">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    <a class="hdr-icon-btn" href="/?open=search" aria-label="Search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     </a>
-    <span class="logo-text" id="cat-heading">Kategori</span>
+    <a class="logo" href="/" aria-label="Beranda">
+      <div class="logo-icon"><img src="https://i.ibb.co.com/5xvnqQjj/1000165671.png" alt="Logo"></div>
+      <span class="logo-text">BACOLTV</span>
+    </a>
+    <a class="hdr-icon-btn" href="/?open=bookmark" aria-label="Tersimpan" id="cat-nav-bookmark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      <span class="hdr-badge" id="cat-nav-bookmark-badge">0</span>
+    </a>
   </header>
 
   <div class="page-body">
     <div id="cat-grid"></div>
   </div>
 </div>
+
+<script>
+// Enhancement layer client-side: menambahkan tombol bookmark ke card yang sudah di-render
+// server-side (HTMLRewriter). Tidak menyentuh markup/link asli, jadi SEO tetap aman.
+(function(){
+  var BOOKMARK_KEY = 'bt_bookmarks'; // key sama persis dengan index.html biar status sinkron
+
+  function getBookmarks(){ try { return JSON.parse(localStorage.getItem(BOOKMARK_KEY)) || []; } catch(e){ return []; } }
+  function saveBookmarks(list){ try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify(list)); } catch(e){} }
+  function isBookmarked(id){ return getBookmarks().some(function(b){ return String(b.id) === String(id); }); }
+  function toggleBookmark(v){
+    var list = getBookmarks(); var idx = -1;
+    for (var i = 0; i < list.length; i++) { if (String(list[i].id) === String(v.id)) { idx = i; break; } }
+    var nowBookmarked;
+    if (idx > -1) { list.splice(idx, 1); nowBookmarked = false; }
+    else { list.unshift({ id: v.id, title: v.title, thumbnail: v.thumbnail }); nowBookmarked = true; }
+    saveBookmarks(list); return nowBookmarked;
+  }
+
+  // Ambil id video dari href "/watch/judul-slug-{id}" (segmen terakhir setelah hyphen)
+  function extractIdFromHref(href) {
+    try {
+      var path = href.replace(/^https?:\/\/[^\/]+/, '').split('?')[0].split('#')[0];
+      var seg = path.split('/').filter(Boolean).pop() || '';
+      var parts = seg.split('-');
+      return parts[parts.length - 1] || null;
+    } catch (e) { return null; }
+  }
+
+  function addBookmarkButtons() {
+    var cards = document.querySelectorAll('#cat-grid > a');
+    cards.forEach(function(card) {
+      if (card.querySelector('.poster-bookmark')) return; // sudah pernah disisipkan
+      var href = card.getAttribute('href');
+      if (!href) return;
+      var id = extractIdFromHref(href);
+      if (!id) return;
+
+      var thumb = card.querySelector('.poster-thumb') || card.querySelector('[class*="thumb"]') || card.firstElementChild;
+      if (!thumb) return;
+
+      var img = card.querySelector('img');
+      var titleEl = card.querySelector('.poster-title') || card.querySelector('[class*="title"]') || card.querySelector('p') || card.querySelector('span');
+      var title = titleEl ? titleEl.textContent.trim() : (img ? img.alt : '');
+      var thumbnail = img ? img.getAttribute('src') : '';
+
+      var bm = document.createElement('button');
+      bm.type = 'button';
+      bm.className = 'poster-bookmark' + (isBookmarked(id) ? ' active' : '');
+      bm.setAttribute('aria-label', 'Bookmark');
+      bm.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>';
+      bm.onclick = function(e) {
+        e.preventDefault(); e.stopPropagation();
+        var nowBookmarked = toggleBookmark({ id: id, title: title, thumbnail: thumbnail });
+        bm.classList.toggle('active', nowBookmarked);
+      };
+      thumb.appendChild(bm);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addBookmarkButtons);
+  } else {
+    addBookmarkButtons();
+  }
+
+  // update badge jumlah bookmark di ikon header
+  var n = getBookmarks().length;
+  var badge = document.getElementById('cat-nav-bookmark-badge');
+  if (badge && n > 0) { badge.textContent = n > 9 ? '9+' : String(n); badge.style.display = 'flex'; }
+})();
+</script>
 
 </body>
 </html>
