@@ -288,12 +288,11 @@ function updateHeaderBookmarkBadge() {
 }
 updateHeaderBookmarkBadge();
 
-// ── TOMBOL BACK ──
-document.getElementById('back-btn').onclick = function(e) {
-  e.preventDefault(); // Mencegah perilaku default HTML
-  history.back();     // Murni memanggil riwayat mundur (sama seperti swipe HP)
+// ── TOMBOL BACK (ganti search) ──
+document.getElementById('back-btn').onclick = function() {
+  if (history.length > 1) history.back();
+  else window.location.href = '/';
 };
-
 
 // ── BOOKMARK OVERLAY (lokal, tanpa pindah halaman) ──
 var headerCenterEl = document.getElementById('header-center');
@@ -311,7 +310,7 @@ function renderBookmarkGrid() {
   }
   var frag = document.createDocumentFragment();
   // showBookmarkBtn=true -> tampilkan ikon bookmark aktif di pojok kartu (khusus overlay ini)
-  list.forEach(function(v) { frag.appendChild(makePoster(v, true)); });
+  list.forEach(function(v) { frag.appendChild(makePoster(v)); });
   boGridEl.appendChild(frag);
 }
 
@@ -463,12 +462,14 @@ function setTitle(text) {
   if (seoInject) seoInject.textContent = text;
 }
 
-// Render satu kartu poster. Dipakai untuk related videos DAN overlay bookmark
-// (sebelumnya dua fungsi terpisah nyaris identik — sekarang satu, bedanya cuma
-// tombol bookmark kecil yang tampil kalau showBookmarkBtn=true).
-function makePoster(v, showBookmarkBtn) {
+// Render satu kartu poster. Dipakai untuk related videos DAN overlay bookmark.
+// Tombol bookmark SELALU tampil di tiap kartu (konsisten dengan index.html &
+// category.html) — statusnya (aktif/tidak) mengikuti apakah video itu sudah
+// ada di daftar bookmark, bukan tergantung dari mana kartu ini dipanggil.
+function makePoster(v) {
   var title = v.title || 'Untitled';
   var thumb = resolveThumb(v);
+  var isBookmarked = getBookmarks().some(function(b) { return String(b.id) === String(v.id); });
 
   var el = document.createElement('a');
   el.className = 'poster';
@@ -477,38 +478,35 @@ function makePoster(v, showBookmarkBtn) {
   var th = document.createElement('div');
   th.className = 'poster-thumb';
 
-  if (!showBookmarkBtn) {
-    // placeholder ikon play, cuma dipakai di grid related (bukan di overlay bookmark)
-    var ph = document.createElement('div');
-    ph.className = 'pph';
-    ph.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="9,7 9,17 19,12" fill="rgba(59,130,246,0.6)"/></svg>';
-    th.appendChild(ph);
-  }
+  // placeholder ikon play, hilang begitu thumbnail asli selesai dimuat
+  var ph = document.createElement('div');
+  ph.className = 'pph';
+  ph.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="9,7 9,17 19,12" fill="rgba(59,130,246,0.6)"/></svg>';
+  th.appendChild(ph);
 
   var img = document.createElement('img');
   img.alt = title;
   img.loading = 'lazy';
   img.decoding = 'async';
-  img.onload = function() { this.classList.add('loaded'); if (ph) ph.style.display = 'none'; };
+  img.onload = function() { this.classList.add('loaded'); ph.style.display = 'none'; };
   img.onerror = function() { this.style.display = 'none'; };
   img.src = thumb;
   th.appendChild(img);
 
-  if (showBookmarkBtn) {
-    var bm = document.createElement('button');
-    bm.type = 'button';
-    bm.className = 'poster-bookmark active';
-    bm.setAttribute('aria-label', 'Bookmark');
-    bm.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>';
-    bm.onclick = function(e) {
-      e.preventDefault(); e.stopPropagation();
-      toggleBookmarkGeneric(v);
-      updateHeaderBookmarkBadge();
-      renderBookmarkGrid();
-      if (currentVideoData && String(currentVideoData.id) === String(v.id)) checkBookmarkStatus();
-    };
-    th.appendChild(bm);
-  }
+  var bm = document.createElement('button');
+  bm.type = 'button';
+  bm.className = 'poster-bookmark' + (isBookmarked ? ' active' : '');
+  bm.setAttribute('aria-label', 'Bookmark');
+  bm.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>';
+  bm.onclick = function(e) {
+    e.preventDefault(); e.stopPropagation();
+    toggleBookmarkGeneric(v);
+    updateHeaderBookmarkBadge();
+    bm.classList.toggle('active');
+    renderBookmarkGrid();
+    if (currentVideoData && String(currentVideoData.id) === String(v.id)) checkBookmarkStatus();
+  };
+  th.appendChild(bm);
 
   var t = document.createElement('div');
   t.className = 'poster-title-sub';
@@ -553,9 +551,9 @@ function loadRelatedVideos(currentVideoId) {
 
         var gridEl = document.getElementById('related-grid');
         gridEl.innerHTML = '';
-                var frag = document.createDocumentFragment();
+        var frag = document.createDocumentFragment();
         recommendations.forEach(function(v) {
-          frag.appendChild(makePoster(v, true)); // <--- TAMBAHKAN 'true'
+          frag.appendChild(makePoster(v));
         });
         gridEl.appendChild(frag);
       });
