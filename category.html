@@ -131,18 +131,18 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 #bookmark-overlay.show{display:flex;}
 .bo-body{flex:1;overflow-y:auto;padding:70px var(--gutter) 40px;}
 
-/* ── MEDIA QUERIES ── */
+/* ── MEDIA QUERIES (disamakan dengan watch.html: 5→6→7 kolom, #cat-grid & .bo-grid naik bareng) ── */
 @media (min-width:700px){ 
   :root{--wrap-max:760px;--gutter:20px;} 
   #cat-grid, .bo-grid{grid-template-columns:repeat(5,1fr) !important;} 
 }
 @media (min-width:1000px){ 
-  :root{--wrap-max:1040px;} 
-  #cat-grid, .bo-grid{grid-template-columns:repeat(5,1fr) !important;} 
+  :root{--wrap-max:1040px;--gutter:24px;} 
+  #cat-grid, .bo-grid{grid-template-columns:repeat(6,1fr) !important;} 
 }
 @media (min-width:1320px){ 
   :root{--wrap-max:1280px;--gutter:28px;}
-  #cat-grid{grid-template-columns:repeat(7,1fr) !important;} 
+  #cat-grid, .bo-grid{grid-template-columns:repeat(7,1fr) !important;} 
 }
 </style>
 </head>
@@ -197,12 +197,20 @@ function slugify(text) {
 }
 function watchHref(v) { return '/watch/' + slugify(v.title) + '-' + v.id; }
 
-// ── OTOMATIS SET JUDUL HEADER DARI TAG <TITLE> ──
-document.addEventListener("DOMContentLoaded", function() {
+// ── SET JUDUL HEADER DARI TAG <TITLE> ──
+// PENTING: dijalankan LANGSUNG (bukan di dalam DOMContentLoaded) karena script
+// ini sudah ada di posisi paling bawah <body> — DOM pasti sudah siap saat baris
+// ini dieksekusi. Ini WAJIB jalan SEBELUM `headerCenterOriginalHTML` di-snapshot
+// di bawah, supaya snapshot itu berisi judul kategori yang benar, bukan
+// "LOADING..." bawaan HTML. (BUG LAMA: sebelumnya ini dibungkus dalam
+// document.addEventListener("DOMContentLoaded", ...) yang baru jalan NANTI —
+// jadi snapshot sempat kepakai duluan dengan teks "LOADING..." yang basi,
+// dan itu yang muncul balik ke header begitu overlay bookmark ditutup.)
+(function setHeaderTitleFromDocumentTitle() {
   var rawTitle = document.title || "Kategori";
-  var cleanTitle = rawTitle.split('-')[0].trim(); 
+  var cleanTitle = rawTitle.split('-')[0].trim();
   document.getElementById('header-title').textContent = cleanTitle;
-});
+})();
 
 // ── TOMBOL BACK ──
 document.getElementById('back-btn').onclick = function(e) {
@@ -287,6 +295,8 @@ document.getElementById('back-btn').onclick = function(e) {
 
   // ── BOOKMARK OVERLAY (lokal, tanpa pindah halaman) ──
   var headerCenter = document.getElementById('header-center');
+  // Snapshot ini diambil DI SINI (setelah setHeaderTitleFromDocumentTitle() di atas
+  // sudah selesai jalan), jadi isinya sudah pasti judul kategori yang benar.
   var headerCenterOriginalHTML = headerCenter.innerHTML;
   var bookmarkOverlay = document.getElementById('bookmark-overlay');
   var boGrid = document.getElementById('bo-grid');
