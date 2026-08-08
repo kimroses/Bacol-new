@@ -29,7 +29,7 @@
   --hdr-side:10px;
 }
 body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
-.wrap{width:100%;margin:0 auto;min-height:100vh;position:relative;}
+.wrap{width:100%;max-width:var(--wrap-max);margin:0 auto;min-height:100vh;position:relative;}
 
 /* ── GLOBAL HEADER (Konsisten dengan index.html) ── */
 #site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:var(--bg);border:1px solid var(--border);border-radius:14px;z-index:410;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
@@ -55,8 +55,6 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   gap: 10px !important;
   align-items: start !important;
   width: 100% !important;
-  max-width: var(--wrap-max) !important; /* Tambahan baru */
-  margin: 0 auto !important; /* Tambahan baru untuk menengahkan grid */
 }
 
 /* Memaksa SETIAP CARD di dalam grid berukuran persis sama */
@@ -73,11 +71,11 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 /* Memaksa PEMBUNGKUS GAMBAR terkunci di rasio 2:3 */
 #cat-grid > * > div:first-child,
 #cat-grid .poster-thumb,
-#cat-grid [class*="thumb"] {
+#cat-grid [class*="thumb"],
+.bo-grid .poster-thumb {
   width: 100% !important;
-  aspect-ratio: 2/3 !important; /* Menggunakan rasio bawaan index */
-  height: auto !important; /* Reset height */
-  padding-bottom: 0 !important; /* Menghapus padding-bottom lama */
+  height: 0 !important;
+  padding-bottom: 145% !important;
   position: relative !important;
   overflow: hidden !important;
   border-radius: 10px !important;
@@ -91,86 +89,6 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 /* Memaksa SEMUA GAMBAR terpotong rapi di tengah (Crop) tanpa merusak rasio */
 #cat-grid img {
-<style>
-*{-webkit-tap-highlight-color:transparent;box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --bg:#0a0e17;
-  --card:#131a2b;
-  --border:rgba(255,255,255,0.08);
-  --text:#f1f5f9;
-  --text2:#8b95a7;
-  --accent:#3b82f6;
-  --gutter:16px;
-  --wrap-max:100%; /* PERBAIKAN: Default mobile harus 100%, BUKAN 520px */
-  --hdr-top:8px;
-  --hdr-side:10px;
-}
-body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
-
-/* ── 1. WRAPPER BEBAS ── */
-.wrap{width:100%;margin:0 auto;min-height:100vh;position:relative;}
-
-/* ── GLOBAL HEADER ── */
-#site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:var(--bg);border:1px solid var(--border);border-radius:14px;z-index:410;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
-
-#header-center {position:absolute;left:50%;transform:translateX(-50%);cursor:pointer;display:flex;align-items:center;justify-content:center;height:100%;text-decoration:none;}
-#header-center .logo{position:relative;left:auto;transform:none;display:flex;align-items:center;gap:8px;text-decoration:none;pointer-events:none;}
-.logo-icon{width:24px;height:24px;}
-.logo-icon img{width:100%;height:100%;object-fit:contain;}
-.logo-text{font-size:15px;font-weight:900;letter-spacing:0.06em;color:var(--text);}
-.header-title{font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--text);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;text-align:center;}
-
-.hdr-btn{position:relative;background:none;border:none;color:var(--text);opacity:0.85;cursor:pointer;display:flex;padding:4px;text-decoration:none;flex-shrink:0;}
-.hdr-badge{position:absolute;top:-3px;right:-4px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--bg);}
-
-/* ── 2. CONTAINER UTAMA DENGAN BATAS LEBAR & CENTER ── */
-.page-body, .bo-body {
-  padding:70px var(--gutter) 40px;
-  width:100%;
-  max-width:var(--wrap-max); /* PERBAIKAN: Max-width dipindah ke sini */
-  margin:0 auto; /* PERBAIKAN: Center posisi grid diletakkan di sini */
-}
-
-/* ── 3. UNIVERSAL GRID RESET (Kategori & Bookmark Overlay) ── */
-#cat-grid, .bo-grid {
-  display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important;
-  gap: 10px !important;
-  align-items: start !important; /* Mencegah kartu melar */
-  width: 100% !important;
-}
-
-#cat-grid > *, .bo-grid > * {
-  display: flex !important;
-  flex-direction: column !important;
-  width: 100% !important;
-  text-decoration: none !important;
-  color: var(--text) !important;
-  min-width: 0 !important;
-  overflow: hidden !important;
-}
-
-/* MEMAKSA PEMBUNGKUS GAMBAR 2:3 */
-#cat-grid > * > div:first-child,
-#cat-grid .poster-thumb,
-#cat-grid [class*="thumb"],
-.bo-grid .poster-thumb {
-  width: 100% !important;
-  aspect-ratio: 2/3 !important;
-  height: auto !important;
-  padding-bottom: 0 !important;
-  position: relative !important;
-  overflow: hidden !important;
-  border-radius: 10px !important;
-  background: var(--card) !important;
-  border: 1px solid var(--border) !important;
-  flex-shrink: 0 !important;
-}
-
-.poster-bookmark{position:absolute;top:6px;left:6px;z-index:6;width:24px;height:24px;border-radius:7px;background:rgba(5,8,16,0.8);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;}
-.poster-bookmark.active{color:#facc15;border-color:#facc15;}
-
-#cat-grid img, .bo-grid img {
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
@@ -182,6 +100,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 }
 .bo-grid img.loaded{opacity:1;}
 
+/* Memaksa TULISAN JUDUL rata 2 baris untuk semua item */
 #cat-grid > * p,
 #cat-grid > * span,
 #cat-grid .poster-title,
@@ -202,26 +121,21 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 .cat-empty, .bo-empty{grid-column:1/-1;text-align:center;padding:60px 0;font-size:12px;color:var(--text2);opacity:0.7;}
 
-/* ── BOOKMARK OVERLAY (lokal) ── */
+/* ── BOOKMARK OVERLAY (lokal, tanpa pindah halaman) ── */
 #bookmark-overlay{position:fixed;inset:0;z-index:450;background:var(--bg);display:none;flex-direction:column;}
 #bookmark-overlay.show{display:flex;}
-.bo-body{flex:1;overflow-y:auto;} /* Padding sudah diatur bareng .page-body di atas */
+.bo-body{flex:1;overflow-y:auto;padding:70px var(--gutter) 40px;}
 
-/* ── 4. MEDIA QUERIES (Sinkron dengan Index & Watch) ── */
+/* ── MEDIA QUERIES ── */
 @media (min-width:700px){ 
   :root{--wrap-max:760px;--gutter:20px;} 
-  #cat-grid, .bo-grid{grid-template-columns:repeat(5, 1fr) !important;} 
+  #cat-grid, .bo-grid{grid-template-columns:repeat(5,1fr) !important;} 
 }
 @media (min-width:1000px){ 
-  :root{--wrap-max:1040px;--gutter:24px;} /* PERBAIKAN: Gutter ditambahkan */
-  #cat-grid, .bo-grid{grid-template-columns:repeat(6, 1fr) !important;} /* PERBAIKAN: Jadi 6 kolom */
-}
-@media (min-width:1320px){ 
-  :root{--wrap-max:1280px;--gutter:28px;}
-  #cat-grid, .bo-grid{grid-template-columns:repeat(7, 1fr) !important;} /* PERBAIKAN: bo-grid ditambahkan */
+  :root{--wrap-max:1040px;} 
+  #cat-grid, .bo-grid{grid-template-columns:repeat(5,1fr) !important;} 
 }
 </style>
-
 </head>
 <body>
 
