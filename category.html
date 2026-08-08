@@ -9,7 +9,7 @@
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 
-<title>bacoltv</title>
+<title>Kategori Halaman</title>
 <meta name="description" content="bacoltv — Free video streaming"/>
 <meta name="theme-color" content="#0a0e17"/>
 <link rel="icon" type="image/png" href="https://i.ibb.co.com/5xvnqQjj/1000165671.png"/>
@@ -25,17 +25,25 @@
   --accent:#3b82f6;
   --gutter:16px;
   --wrap-max:520px;
+  --hdr-top:8px;
+  --hdr-side:10px;
 }
 body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
 .wrap{width:100%;max-width:var(--wrap-max);margin:0 auto;min-height:100vh;position:relative;}
 
-#site-header{position:fixed;top:8px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:calc(var(--wrap-max) - 20px);height:48px;background:rgba(10,14,23,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:14px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
-.hdr-icon-btn{position:relative;background:none;border:none;color:var(--text);opacity:0.9;cursor:pointer;display:flex;padding:4px;text-decoration:none;flex-shrink:0;}
-.logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
+/* ── GLOBAL HEADER (Konsisten dengan index.html) ── */
+#site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:var(--bg);border:1px solid var(--border);border-radius:14px;z-index:410;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
+
+/* Bagian tengah header dinamis */
+#header-center {position:absolute;left:50%;transform:translateX(-50%);cursor:pointer;display:flex;align-items:center;justify-content:center;height:100%;text-decoration:none;}
+#header-center .logo{position:relative;left:auto;transform:none;display:flex;align-items:center;gap:8px;text-decoration:none;pointer-events:none;}
 .logo-icon{width:24px;height:24px;}
 .logo-icon img{width:100%;height:100%;object-fit:contain;}
-.logo-text{font-size:15px;font-weight:900;letter-spacing:0.06em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.hdr-badge{position:absolute;top:-2px;right:-4px;min-width:14px;height:14px;padding:0 3px;border-radius:8px;background:#ef4444;color:#fff;font-size:8px;font-weight:800;display:none;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--bg);}
+.logo-text{font-size:15px;font-weight:900;letter-spacing:0.06em;color:var(--text);}
+.header-title{font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--text);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;text-align:center;}
+
+.hdr-btn{position:relative;background:none;border:none;color:var(--text);opacity:0.85;cursor:pointer;display:flex;padding:4px;text-decoration:none;flex-shrink:0;}
+.hdr-badge{position:absolute;top:-3px;right:-4px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--bg);}
 
 .page-body{padding:70px var(--gutter) 40px;}
 
@@ -65,7 +73,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 #cat-grid [class*="thumb"] {
   width: 100% !important;
   height: 0 !important;
-  padding-bottom: 145% !important; /* Mengunci rasio kotak memanjang */
+  padding-bottom: 145% !important;
   position: relative !important;
   overflow: hidden !important;
   border-radius: 10px !important;
@@ -84,7 +92,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important; /* Trik kunci agar gambar tidak gepeng/melar */
+  object-fit: cover !important;
   border-radius: 10px !important;
   display: block !important;
 }
@@ -109,7 +117,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 .cat-empty{grid-column:1/-1;text-align:center;padding:60px 0;font-size:12px;color:var(--text2);opacity:0.7;}
 
-/* ── MEDIA QUERIES (Diletakkan di bawah agar menimpa default 3 kolom di atas) ── */
+/* ── MEDIA QUERIES ── */
 @media (min-width:700px){ 
   :root{--wrap-max:760px;--gutter:20px;} 
   #cat-grid{grid-template-columns:repeat(4,1fr) !important;} 
@@ -123,15 +131,23 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 <body>
 
 <div class="wrap">
+  <!-- HEADER HOMEPAGE KLONINGAN -->
   <header id="site-header">
-    <a class="hdr-icon-btn" href="/?open=search" aria-label="Search">
+    <a class="hdr-btn" href="/?open=search" aria-label="Search">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     </a>
-    <a class="logo" href="/" aria-label="Beranda">
-      <div class="logo-icon"><img src="https://i.ibb.co.com/5xvnqQjj/1000165671.png" alt="Logo"></div>
-      <span class="logo-text">BACOLTV</span>
+    
+    <!-- Link area tengah berfungsi sbg tombol Back ke Beranda -->
+    <a id="header-center" href="/" aria-label="Back to Home">
+      <div class="logo" id="header-logo" style="display:none;">
+        <div class="logo-icon"><img src="https://i.ibb.co.com/5xvnqQjj/1000165671.png" alt="Logo"></div>
+        <span class="logo-text">BACOLTV</span>
+      </div>
+      <!-- Logo disembunyikan, Title Kategori ditampilkan -->
+      <span class="header-title" id="header-title">LOADING...</span>
     </a>
-    <a class="hdr-icon-btn" href="/?open=bookmark" aria-label="Tersimpan" id="cat-nav-bookmark">
+    
+    <a class="hdr-btn" href="/?open=bookmark" aria-label="Tersimpan" id="cat-nav-bookmark">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
       <span class="hdr-badge" id="cat-nav-bookmark-badge">0</span>
     </a>
@@ -143,10 +159,19 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 </div>
 
 <script>
+// ── OTOMATIS SET JUDUL HEADER DARI TAG <TITLE> ──
+document.addEventListener("DOMContentLoaded", function() {
+  // Ambil isi tag <title>, contoh: "Action Movie - bacoltv"
+  var rawTitle = document.title || "Kategori";
+  // Potong kata "- bacoltv" di belakang jika ada, agar bersih
+  var cleanTitle = rawTitle.split('-')[0].trim(); 
+  document.getElementById('header-title').textContent = cleanTitle;
+});
+
 // Enhancement layer client-side: menambahkan tombol bookmark ke card yang sudah di-render
 // server-side (HTMLRewriter). Tidak menyentuh markup/link asli, jadi SEO tetap aman.
 (function(){
-  var BOOKMARK_KEY = 'bt_bookmarks'; // key sama persis dengan index.html biar status sinkron
+  var BOOKMARK_KEY = 'bt_bookmarks'; 
 
   function getBookmarks(){ try { return JSON.parse(localStorage.getItem(BOOKMARK_KEY)) || []; } catch(e){ return []; } }
   function saveBookmarks(list){ try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify(list)); } catch(e){} }
@@ -196,21 +221,35 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
         e.preventDefault(); e.stopPropagation();
         var nowBookmarked = toggleBookmark({ id: id, title: title, thumbnail: thumbnail });
         bm.classList.toggle('active', nowBookmarked);
+        updateHeaderBadge(); // Update badge langsung saat diklik
       };
       thumb.appendChild(bm);
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', addBookmarkButtons);
-  } else {
-    addBookmarkButtons();
+  // update badge jumlah bookmark di ikon header
+  function updateHeaderBadge() {
+    var n = getBookmarks().length;
+    var badge = document.getElementById('cat-nav-bookmark-badge');
+    if (badge) {
+      if (n > 0) {
+        badge.textContent = n > 9 ? '9+' : String(n); 
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
   }
 
-  // update badge jumlah bookmark di ikon header
-  var n = getBookmarks().length;
-  var badge = document.getElementById('cat-nav-bookmark-badge');
-  if (badge && n > 0) { badge.textContent = n > 9 ? '9+' : String(n); badge.style.display = 'flex'; }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      addBookmarkButtons();
+      updateHeaderBadge();
+    });
+  } else {
+    addBookmarkButtons();
+    updateHeaderBadge();
+  }
 })();
 </script>
 
