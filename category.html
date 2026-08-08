@@ -32,7 +32,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .wrap{width:100%;margin:0 auto;min-height:100vh;position:relative;}
 
 /* ── GLOBAL HEADER (Konsisten dengan index.html) ── */
-#site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:var(--bg);border:1px solid var(--border);border-radius:14px;z-index:410;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
+#site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:var(--bg);border:1px solid var(--border);border-radius:14px;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
 
 /* Bagian tengah header dinamis */
 #header-center {position:absolute;left:50%;transform:translateX(-50%);cursor:pointer;display:flex;align-items:center;justify-content:center;height:100%;text-decoration:none;}
@@ -205,10 +205,11 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // ── TOMBOL BACK ──
-document.getElementById('back-btn').onclick = function() {
-  if (history.length > 1) history.back();
-  else window.location.href = '/';
+document.getElementById('back-btn').onclick = function(e) {
+  e.preventDefault(); // Mencegah perilaku default HTML
+  history.back();     // Murni memanggil riwayat mundur (sama seperti swipe HP)
 };
+
 
 // Enhancement layer client-side: menambahkan tombol bookmark ke card yang sudah di-render
 // server-side (HTMLRewriter), plus overlay "My Bookmarks" lokal di header.
