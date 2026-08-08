@@ -21,6 +21,8 @@
   --accent2:#60a5fa;
   --gutter:16px;
   --wrap-max:520px;
+  --hdr-top:8px;
+  --hdr-side:10px;
 }
 body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
 .wrap{width:100%;max-width:var(--wrap-max);margin:0 auto;min-height:100vh;position:relative;}
@@ -33,13 +35,17 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   .related-grid{grid-template-columns:repeat(5, minmax(0, 1fr)) !important;}
 }
 
-/* ── HEADER ORIGINAL ── */
-#site-header{position:fixed;top:8px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:calc(var(--wrap-max) - 20px);height:48px;background:rgba(10,14,23,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:14px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
+/* ── GLOBAL HEADER (disamakan dengan index.html / category.html) ── */
+#site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:var(--bg);border:1px solid var(--border);border-radius:14px;z-index:410;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
+
+#header-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;height:100%;text-decoration:none;}
 .logo{display:flex;align-items:center;gap:8px;}
 .logo-icon{width:24px;height:24px;}
 .logo-icon img{width:100%;height:100%;object-fit:contain;}
 .logo-text{font-size:15px;font-weight:900;letter-spacing:0.06em;color:var(--text);}
-.hdr-back{background:none;border:none;color:var(--text);opacity:0.85;cursor:pointer;display:flex;padding:4px;text-decoration:none;}
+
+.hdr-btn{position:relative;background:none;border:none;color:var(--text);opacity:0.85;cursor:pointer;display:flex;padding:4px;text-decoration:none;flex-shrink:0;}
+.hdr-badge{position:absolute;top:-3px;right:-4px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--bg);}
 
 .page-body{padding:70px var(--gutter) 40px;}
 
@@ -83,11 +89,22 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .related-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100%; }
 
 .poster { display: flex !important; flex-direction: column !important; text-decoration: none !important; color: inherit !important; width: 100% !important; min-width: 0 !important; }
-.poster-thumb { width: 100% !important; aspect-ratio: 2 / 3 !important; border-radius: 10px; overflow: hidden; position: relative; background: var(--card); border: 1px solid var(--border); flex-shrink: 0; }
+.poster-thumb { width: 100% !important; height: 0 !important; padding-bottom: 145% !important; position: relative !important; border-radius: 10px; overflow: hidden; background: var(--card); border: 1px solid var(--border); flex-shrink: 0; }
 .poster-thumb img { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; opacity: 0; transition: opacity 0.3s; }
 .poster-thumb img.loaded { opacity: 1; }
 .poster-thumb .pph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); }
 .poster-title-sub { margin-top: 6px !important; font-size: 11px !important; font-weight: 700 !important; line-height: 1.3 !important; height: 28.6px !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; text-overflow: ellipsis !important; word-break: break-word; opacity: 0.92; }
+.poster-bookmark{position:absolute;top:6px;left:6px;z-index:6;width:24px;height:24px;border-radius:7px;background:rgba(5,8,16,0.8);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;}
+.poster-bookmark.active{color:#facc15;border-color:#facc15;}
+
+/* ── BOOKMARK OVERLAY (lokal, tanpa pindah halaman) ── */
+#bookmark-overlay{position:fixed;inset:0;z-index:450;background:var(--bg);display:none;flex-direction:column;}
+#bookmark-overlay.show{display:flex;}
+.bo-body{flex:1;overflow-y:auto;padding:70px var(--gutter) 40px;}
+.bo-grid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:10px;width:100%;}
+.bo-empty{grid-column:1/-1;text-align:center;padding:60px 0;font-size:12px;color:var(--text2);opacity:0.7;}
+@media (min-width:700px){ .bo-grid{grid-template-columns:repeat(4, minmax(0, 1fr));} }
+@media (min-width:1000px){ .bo-grid{grid-template-columns:repeat(5, minmax(0, 1fr));} }
 
 /* AD 3: sticky bottom 320x50 */
 .ad-sticky-bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:9999;width:320px;max-width:100vw;min-height:50px;padding-top:16px;}
@@ -99,15 +116,23 @@ body.has-sticky-ad .page-body{padding-bottom:100px;}
 <body>
 
 <div class="wrap">
+  <!-- GLOBAL HEADER: sama persis dengan index.html / category.html -->
   <header id="site-header">
-    <a class="hdr-back" href="/" aria-label="Back to home">
+    <button class="hdr-btn" id="back-btn" aria-label="Back">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+
+    <a id="header-center" href="/" aria-label="Back to Home">
+      <div class="logo">
+        <div class="logo-icon"><img src="https://i.ibb.co.com/5xvnqQjj/1000165671.png" alt="Logo"></div>
+        <span class="logo-text">BACOLTV</span>
+      </div>
     </a>
-    <div class="logo">
-      <div class="logo-icon"><img src="https://i.ibb.co.com/5xvnqQjj/1000165671.png" alt="Logo"></div>
-      <span class="logo-text">BACOLTV</span>
-    </div>
-    <div style="width:24px;"></div>
+
+    <button class="hdr-btn" id="watch-nav-bookmark" aria-label="Tersimpan">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      <span class="hdr-badge" id="watch-nav-bookmark-badge">0</span>
+    </button>
   </header>
 
   <div class="page-body">
@@ -143,7 +168,7 @@ body.has-sticky-ad .page-body{padding-bottom:100px;}
         <button class="action-btn" id="btn-share" aria-label="Share">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         </button>
-        <!-- Bookmark -->
+        <!-- Bookmark (video ini) -->
         <button class="action-btn" id="btn-bookmark" aria-label="Bookmark">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         </button>
@@ -172,6 +197,13 @@ body.has-sticky-ad .page-body{padding-bottom:100px;}
         <!-- Card dimuat via JS -->
       </div>
     </div>
+  </div>
+</div>
+
+<!-- BOOKMARK OVERLAY -->
+<div id="bookmark-overlay">
+  <div class="bo-body">
+    <div class="bo-grid" id="bo-grid"></div>
   </div>
 </div>
 
@@ -215,6 +247,115 @@ function slugify(text) {
     .replace(/-{2,}/g, '-') || 'video';
 }
 function watchHref(v) { return '/watch/' + slugify(v.title) + '-' + v.id; }
+
+// ── BOOKMARKS (key sama dengan index.html & category.html) ──
+var BOOKMARK_KEY = 'bt_bookmarks';
+function getBookmarks() { try { return JSON.parse(localStorage.getItem(BOOKMARK_KEY)) || []; } catch (e) { return []; } }
+function saveBookmarks(list) { try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify(list)); } catch (e) {} }
+function toggleBookmarkGeneric(v) {
+  var list = getBookmarks(); var idx = -1;
+  for (var i = 0; i < list.length; i++) { if (String(list[i].id) === String(v.id)) { idx = i; break; } }
+  if (idx > -1) list.splice(idx, 1);
+  else list.unshift({ id: v.id, title: v.title, thumbnail: v.thumbnail });
+  saveBookmarks(list);
+}
+
+// Badge bookmark di header global (jumlah total bookmark, bukan status video ini)
+function updateHeaderBookmarkBadge() {
+  var n = getBookmarks().length;
+  var badge = document.getElementById('watch-nav-bookmark-badge');
+  if (badge) {
+    if (n > 0) { badge.textContent = n > 9 ? '9+' : String(n); badge.style.display = 'flex'; }
+    else { badge.style.display = 'none'; }
+  }
+}
+updateHeaderBookmarkBadge();
+
+// ── TOMBOL BACK (ganti search) ──
+document.getElementById('back-btn').onclick = function() {
+  if (history.length > 1) history.back();
+  else window.location.href = '/';
+};
+
+// ── BOOKMARK OVERLAY (lokal, tanpa pindah halaman) ──
+var headerCenterEl = document.getElementById('header-center');
+var headerCenterOriginalHTML = headerCenterEl.innerHTML;
+var bookmarkOverlayEl = document.getElementById('bookmark-overlay');
+var boGridEl = document.getElementById('bo-grid');
+var isBookmarkOverlayOpen = false;
+
+function makeBookmarkPoster(v) {
+  var title = v.title || 'Untitled';
+  var el = document.createElement('a');
+  el.className = 'poster';
+  el.href = watchHref(v);
+  var th = document.createElement('div');
+  th.className = 'poster-thumb';
+  var img = document.createElement('img');
+  img.alt = title; img.loading = 'lazy'; img.decoding = 'async';
+  img.onload = function() { this.classList.add('loaded'); };
+  img.onerror = function() { this.style.display = 'none'; };
+  img.src = resolveThumb(v);
+  th.appendChild(img);
+  var bm = document.createElement('button');
+  bm.type = 'button';
+  bm.className = 'poster-bookmark active';
+  bm.setAttribute('aria-label', 'Bookmark');
+  bm.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>';
+  bm.onclick = function(e) {
+    e.preventDefault(); e.stopPropagation();
+    toggleBookmarkGeneric(v);
+    updateHeaderBookmarkBadge();
+    renderBookmarkGrid();
+    if (currentVideoData && String(currentVideoData.id) === String(v.id)) checkBookmarkStatus();
+  };
+  th.appendChild(bm);
+  var t = document.createElement('div');
+  t.className = 'poster-title-sub';
+  t.textContent = title;
+  el.appendChild(th);
+  el.appendChild(t);
+  return el;
+}
+
+function renderBookmarkGrid() {
+  var list = getBookmarks();
+  boGridEl.innerHTML = '';
+  if (!list.length) {
+    boGridEl.innerHTML = '<div class="bo-empty">Belum ada bookmark</div>';
+    return;
+  }
+  var frag = document.createDocumentFragment();
+  list.forEach(function(v) { frag.appendChild(makeBookmarkPoster(v)); });
+  boGridEl.appendChild(frag);
+}
+
+function openBookmarkOverlay() {
+  renderBookmarkGrid();
+  headerCenterEl.innerHTML = '<span style="font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--text);">MY BOOKMARKS</span>';
+  bookmarkOverlayEl.classList.add('show');
+  isBookmarkOverlayOpen = true;
+  history.pushState({ overlay: 'bookmark' }, '', '');
+}
+
+function closeBookmarkOverlay() {
+  bookmarkOverlayEl.classList.remove('show');
+  headerCenterEl.innerHTML = headerCenterOriginalHTML;
+  isBookmarkOverlayOpen = false;
+}
+
+document.getElementById('watch-nav-bookmark').onclick = openBookmarkOverlay;
+
+headerCenterEl.addEventListener('click', function(e) {
+  if (isBookmarkOverlayOpen) {
+    e.preventDefault();
+    history.back();
+  }
+});
+
+window.addEventListener('popstate', function() {
+  if (isBookmarkOverlayOpen) closeBookmarkOverlay();
+});
 
 // ── MANAJEMEN IKLAN BANNER ──
 var adLoadQueue = [];
@@ -434,10 +575,6 @@ document.getElementById('btn-share').onclick = function() {
   }
 };
 
-var BOOKMARK_KEY = 'bt_bookmarks';
-function getBookmarks() { try { return JSON.parse(localStorage.getItem(BOOKMARK_KEY)) || []; } catch (e) { return []; } }
-function saveBookmarks(list) { try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify(list)); } catch (e) {} }
-
 var btnBookmark = document.getElementById('btn-bookmark');
 function checkBookmarkStatus() {
   if (!currentVideoData) return;
@@ -462,6 +599,7 @@ btnBookmark.onclick = function() {
     btnBookmark.classList.add('active');
   }
   saveBookmarks(list);
+  updateHeaderBookmarkBadge(); // sinkronkan badge header setelah toggle
 };
 
 document.getElementById('btn-download').onclick = function() {
