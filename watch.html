@@ -553,9 +553,9 @@ function loadRelatedVideos(currentVideoId) {
 
         var gridEl = document.getElementById('related-grid');
         gridEl.innerHTML = '';
-        var frag = document.createDocumentFragment();
+                var frag = document.createDocumentFragment();
         recommendations.forEach(function(v) {
-          frag.appendChild(makePoster(v));
+          frag.appendChild(makePoster(v, true)); // <--- TAMBAHKAN 'true'
         });
         gridEl.appendChild(frag);
       });
