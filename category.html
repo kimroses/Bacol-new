@@ -29,7 +29,7 @@
   --hdr-side:10px;
 }
 body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
-.wrap{width:100%;max-width:var(--wrap-max);margin:0 auto;min-height:100vh;position:relative;}
+.wrap{width:100%;margin:0 auto;min-height:100vh;position:relative;}
 
 /* ── GLOBAL HEADER (Konsisten dengan index.html) ── */
 #site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:var(--bg);border:1px solid var(--border);border-radius:14px;z-index:410;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
@@ -55,6 +55,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   gap: 10px !important;
   align-items: start !important;
   width: 100% !important;
+  max-width: var(--wrap-max) !important; /* Tambahan baru */
+  margin: 0 auto !important; /* Tambahan baru untuk menengahkan grid */
 }
 
 /* Memaksa SETIAP CARD di dalam grid berukuran persis sama */
@@ -71,11 +73,11 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 /* Memaksa PEMBUNGKUS GAMBAR terkunci di rasio 2:3 */
 #cat-grid > * > div:first-child,
 #cat-grid .poster-thumb,
-#cat-grid [class*="thumb"],
-.bo-grid .poster-thumb {
+#cat-grid [class*="thumb"] {
   width: 100% !important;
-  height: 0 !important;
-  padding-bottom: 145% !important;
+  aspect-ratio: 2/3 !important; /* Menggunakan rasio bawaan index */
+  height: auto !important; /* Reset height */
+  padding-bottom: 0 !important; /* Menghapus padding-bottom lama */
   position: relative !important;
   overflow: hidden !important;
   border-radius: 10px !important;
@@ -134,6 +136,10 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 @media (min-width:1000px){ 
   :root{--wrap-max:1040px;} 
   #cat-grid, .bo-grid{grid-template-columns:repeat(5,1fr) !important;} 
+}
+@media (min-width:1320px){ 
+  :root{--wrap-max:1280px;--gutter:28px;}
+  #cat-grid{grid-template-columns:repeat(7,1fr) !important;} 
 }
 </style>
 </head>
