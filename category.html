@@ -48,7 +48,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .page-body{padding:70px var(--gutter) 40px;}
 
 /* ── UNIVERSAL GRID RESET (Default HP: 3 Kolom) ── */
-#cat-grid {
+/* .bo-grid (overlay bookmark) memakai style yang persis sama dengan #cat-grid */
+#cat-grid, .bo-grid {
   display: grid !important;
   grid-template-columns: repeat(3, 1fr) !important;
   gap: 10px !important;
@@ -57,7 +58,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 }
 
 /* Memaksa SETIAP CARD di dalam grid berukuran persis sama */
-#cat-grid > * {
+#cat-grid > *, .bo-grid > * {
   display: flex !important;
   flex-direction: column !important;
   width: 100% !important;
@@ -70,7 +71,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 /* Memaksa PEMBUNGKUS GAMBAR terkunci di rasio 2:3 */
 #cat-grid > * > div:first-child,
 #cat-grid .poster-thumb,
-#cat-grid [class*="thumb"] {
+#cat-grid [class*="thumb"],
+.bo-grid .poster-thumb {
   width: 100% !important;
   height: 0 !important;
   padding-bottom: 145% !important;
@@ -86,7 +88,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .poster-bookmark.active{color:#facc15;border-color:#facc15;}
 
 /* Memaksa SEMUA GAMBAR terpotong rapi di tengah (Crop) tanpa merusak rasio */
-#cat-grid img {
+#cat-grid img, .bo-grid img {
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
@@ -95,13 +97,17 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   object-fit: cover !important;
   border-radius: 10px !important;
   display: block !important;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
+.bo-grid img.loaded{opacity:1;}
 
 /* Memaksa TULISAN JUDUL rata 2 baris untuk semua item */
 #cat-grid > * p,
 #cat-grid > * span,
 #cat-grid .poster-title,
-#cat-grid [class*="title"] {
+#cat-grid [class*="title"],
+.bo-grid .poster-title {
   margin-top: 6px !important;
   font-size: 11px !important;
   font-weight: 700 !important;
@@ -115,16 +121,21 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   opacity: 0.92 !important;
 }
 
-.cat-empty{grid-column:1/-1;text-align:center;padding:60px 0;font-size:12px;color:var(--text2);opacity:0.7;}
+.cat-empty, .bo-empty{grid-column:1/-1;text-align:center;padding:60px 0;font-size:12px;color:var(--text2);opacity:0.7;}
+
+/* ── BOOKMARK OVERLAY (lokal, tanpa pindah halaman) ── */
+#bookmark-overlay{position:fixed;inset:0;z-index:450;background:var(--bg);display:none;flex-direction:column;}
+#bookmark-overlay.show{display:flex;}
+.bo-body{flex:1;overflow-y:auto;padding:70px var(--gutter) 40px;}
 
 /* ── MEDIA QUERIES ── */
 @media (min-width:700px){ 
   :root{--wrap-max:760px;--gutter:20px;} 
-  #cat-grid{grid-template-columns:repeat(4,1fr) !important;} 
+  #cat-grid, .bo-grid{grid-template-columns:repeat(4,1fr) !important;} 
 }
 @media (min-width:1000px){ 
   :root{--wrap-max:1040px;} 
-  #cat-grid{grid-template-columns:repeat(5,1fr) !important;} 
+  #cat-grid, .bo-grid{grid-template-columns:repeat(5,1fr) !important;} 
 }
 </style>
 </head>
@@ -133,11 +144,11 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 <div class="wrap">
   <!-- HEADER HOMEPAGE KLONINGAN -->
   <header id="site-header">
-    <a class="hdr-btn" href="/?open=search" aria-label="Search">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    </a>
+    <button class="hdr-btn" id="back-btn" aria-label="Back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
     
-    <!-- Link area tengah berfungsi sbg tombol Back ke Beranda -->
+    <!-- Link area tengah berfungsi sbg tombol Back ke Beranda (atau tutup overlay bookmark bila lagi kebuka) -->
     <a id="header-center" href="/" aria-label="Back to Home">
       <div class="logo" id="header-logo" style="display:none;">
         <div class="logo-icon"><img src="https://i.ibb.co.com/5xvnqQjj/1000165671.png" alt="Logo"></div>
@@ -147,10 +158,10 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
       <span class="header-title" id="header-title">LOADING...</span>
     </a>
     
-    <a class="hdr-btn" href="/?open=bookmark" aria-label="Tersimpan" id="cat-nav-bookmark">
+    <button class="hdr-btn" id="cat-nav-bookmark" aria-label="Tersimpan">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
       <span class="hdr-badge" id="cat-nav-bookmark-badge">0</span>
-    </a>
+    </button>
   </header>
 
   <div class="page-body">
@@ -158,18 +169,43 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </div>
 </div>
 
+<!-- BOOKMARK OVERLAY -->
+<div id="bookmark-overlay">
+  <div class="bo-body">
+    <div class="bo-grid" id="bo-grid"></div>
+  </div>
+</div>
+
 <script>
+var THUMB_HOST = 'https://xpvid.cc';
+var FALLBACK_THUMB = 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=500&auto=format&fit=crop';
+
+function resolveThumb(t) {
+  if (!t) return FALLBACK_THUMB;
+  if (t.indexOf('/') === 0) return THUMB_HOST + t;
+  return t;
+}
+function slugify(text) {
+  return String(text || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').replace(/-{2,}/g, '-') || 'video';
+}
+function watchHref(v) { return '/watch/' + slugify(v.title) + '-' + v.id; }
+
 // ── OTOMATIS SET JUDUL HEADER DARI TAG <TITLE> ──
 document.addEventListener("DOMContentLoaded", function() {
-  // Ambil isi tag <title>, contoh: "Action Movie - bacoltv"
   var rawTitle = document.title || "Kategori";
-  // Potong kata "- bacoltv" di belakang jika ada, agar bersih
   var cleanTitle = rawTitle.split('-')[0].trim(); 
   document.getElementById('header-title').textContent = cleanTitle;
 });
 
+// ── TOMBOL BACK ──
+document.getElementById('back-btn').onclick = function() {
+  if (history.length > 1) history.back();
+  else window.location.href = '/';
+};
+
 // Enhancement layer client-side: menambahkan tombol bookmark ke card yang sudah di-render
-// server-side (HTMLRewriter). Tidak menyentuh markup/link asli, jadi SEO tetap aman.
+// server-side (HTMLRewriter), plus overlay "My Bookmarks" lokal di header.
+// Tidak menyentuh markup/link asli #cat-grid, jadi SEO tetap aman.
 (function(){
   var BOOKMARK_KEY = 'bt_bookmarks'; 
 
@@ -221,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function() {
         e.preventDefault(); e.stopPropagation();
         var nowBookmarked = toggleBookmark({ id: id, title: title, thumbnail: thumbnail });
         bm.classList.toggle('active', nowBookmarked);
-        updateHeaderBadge(); // Update badge langsung saat diklik
+        updateHeaderBadge();
       };
       thumb.appendChild(bm);
     });
@@ -240,6 +276,85 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     }
   }
+
+  // ── BOOKMARK OVERLAY (lokal, tanpa pindah halaman) ──
+  var headerCenter = document.getElementById('header-center');
+  var headerCenterOriginalHTML = headerCenter.innerHTML;
+  var bookmarkOverlay = document.getElementById('bookmark-overlay');
+  var boGrid = document.getElementById('bo-grid');
+  var isBookmarkOverlayOpen = false;
+
+  function makeBookmarkPoster(v) {
+    var title = v.title || 'Untitled';
+    var el = document.createElement('a');
+    el.className = 'poster';
+    el.href = watchHref(v);
+    var th = document.createElement('div');
+    th.className = 'poster-thumb';
+    var img = document.createElement('img');
+    img.alt = title; img.loading = 'lazy'; img.decoding = 'async';
+    img.onload = function() { this.classList.add('loaded'); };
+    img.onerror = function() { this.style.display = 'none'; };
+    img.src = resolveThumb(v.thumbnail);
+    th.appendChild(img);
+    var bm = document.createElement('button');
+    bm.type = 'button';
+    bm.className = 'poster-bookmark active';
+    bm.setAttribute('aria-label', 'Bookmark');
+    bm.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>';
+    bm.onclick = function(e) {
+      e.preventDefault(); e.stopPropagation();
+      toggleBookmark(v);
+      updateHeaderBadge();
+      renderBookmarkGrid();
+    };
+    th.appendChild(bm);
+    var t = document.createElement('div');
+    t.className = 'poster-title';
+    t.textContent = title;
+    el.appendChild(th);
+    el.appendChild(t);
+    return el;
+  }
+
+  function renderBookmarkGrid() {
+    var list = getBookmarks();
+    boGrid.innerHTML = '';
+    if (!list.length) {
+      boGrid.innerHTML = '<div class="bo-empty">Belum ada bookmark</div>';
+      return;
+    }
+    var frag = document.createDocumentFragment();
+    list.forEach(function(v) { frag.appendChild(makeBookmarkPoster(v)); });
+    boGrid.appendChild(frag);
+  }
+
+  function openBookmarkOverlay() {
+    renderBookmarkGrid();
+    headerCenter.innerHTML = '<span class="header-title">MY BOOKMARKS</span>';
+    bookmarkOverlay.classList.add('show');
+    isBookmarkOverlayOpen = true;
+    history.pushState({ overlay: 'bookmark' }, '', '');
+  }
+
+  function closeBookmarkOverlay() {
+    bookmarkOverlay.classList.remove('show');
+    headerCenter.innerHTML = headerCenterOriginalHTML;
+    isBookmarkOverlayOpen = false;
+  }
+
+  document.getElementById('cat-nav-bookmark').onclick = openBookmarkOverlay;
+
+  headerCenter.addEventListener('click', function(e) {
+    if (isBookmarkOverlayOpen) {
+      e.preventDefault();
+      history.back();
+    }
+  });
+
+  window.addEventListener('popstate', function() {
+    if (isBookmarkOverlayOpen) closeBookmarkOverlay();
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
