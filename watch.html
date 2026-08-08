@@ -288,11 +288,12 @@ function updateHeaderBookmarkBadge() {
 }
 updateHeaderBookmarkBadge();
 
-// ── TOMBOL BACK (ganti search) ──
-document.getElementById('back-btn').onclick = function() {
-  if (history.length > 1) history.back();
-  else window.location.href = '/';
+// ── TOMBOL BACK ──
+document.getElementById('back-btn').onclick = function(e) {
+  e.preventDefault(); // Mencegah perilaku default HTML
+  history.back();     // Murni memanggil riwayat mundur (sama seperti swipe HP)
 };
+
 
 // ── BOOKMARK OVERLAY (lokal, tanpa pindah halaman) ──
 var headerCenterEl = document.getElementById('header-center');
