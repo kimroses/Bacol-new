@@ -99,7 +99,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .so-body{flex:1;overflow-y:auto;padding:16px;}
 
 /* Category Overlay Body */
-.co-body{flex:1;overflow-y:auto;padding:16px;padding-top:70px;}
+.co-body{flex:1;overflow-y:auto;padding:var(--gutter);padding-top:70px;}
 
 .so-empty, .co-empty{grid-column:1/-1;text-align:center;padding:60px 0;font-size:12px;color:var(--text2);opacity:0.7;}
 .so-spinner{display:none;align-items:center;justify-content:center;gap:8px;padding:24px 0;font-size:11px;color:var(--accent2);font-weight:700;}
@@ -136,7 +136,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   :root{--wrap-max:1040px;--gutter:24px;}
   .poster{width:150px; contain-intrinsic-size: 150px 258px;}
   .hero{aspect-ratio:16/7;max-height:55vh;}
-  .so-grid, .co-grid { grid-template-columns: repeat(6, 1fr) !important; }
+  .so-grid, .co-grid { grid-template-columns: repeat(5, 1fr) !important; }
 }
 @media (min-width:1320px){
   :root{--wrap-max:1280px;--gutter:28px;}
