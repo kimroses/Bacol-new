@@ -32,7 +32,6 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .wrap{width:100%;max-width:var(--wrap-max);margin:0 auto;min-height:100vh;position:relative;}
 
 /* ── GLOBAL HEADER ── */
-/* z-index dinaikkan ke 410 agar berada di atas category-overlay (400) */
 #site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:var(--bg);border:1px solid var(--border);border-radius:14px;z-index:410;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
 
 /* Bagian tengah header dinamis (Logo / Judul Kategori) */
@@ -88,7 +87,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 /* ── OVERLAYS (SEARCH & CATEGORY) ── */
 #category-overlay{position:fixed;inset:0;z-index:400;background:var(--bg);display:none;flex-direction:column;}
-#search-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);display:none;flex-direction:column;} /* Z-index tertinggi */
+#search-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);display:none;flex-direction:column;}
 #search-overlay.show, #category-overlay.show{display:flex;}
 
 /* Search Overlay Top */
@@ -100,7 +99,6 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .so-body{flex:1;overflow-y:auto;padding:16px;}
 
 /* Category Overlay Body */
-/* Padding-top menjaga konten tidak tertutup oleh global header */
 .co-body{flex:1;overflow-y:auto;padding:16px;padding-top:70px;}
 
 .so-empty, .co-empty{grid-column:1/-1;text-align:center;padding:60px 0;font-size:12px;color:var(--text2);opacity:0.7;}
@@ -153,7 +151,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   <span class="splash-text">BACOLTV</span>
 </div>
 
-<!-- GLOBAL HEADER (Digunakan oleh Beranda dan Kategori Overlay) -->
+<!-- GLOBAL HEADER -->
 <header id="site-header">
   <button class="hdr-btn" id="search-btn" aria-label="Search">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -193,7 +191,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </button>
 </div>
 
-<!-- CATEGORY OVERLAY (Sekarang tanpa header sendiri) -->
+<!-- CATEGORY OVERLAY -->
 <div id="category-overlay">
   <div class="co-body" id="co-scroll">
     <div class="co-grid" id="co-grid"></div>
@@ -412,7 +410,6 @@ var headerLogo   = document.getElementById('header-logo');
 var headerTitle  = document.getElementById('header-title');
 var isCategoryOpen = false;
 
-// Fungsi untuk mengganti state Header Global
 function updateHeaderState(title) {
   if (title) {
     headerLogo.style.display = 'none';
@@ -427,10 +424,13 @@ function updateHeaderState(title) {
 }
 
 function openLocalCategory(title, list) {
-  updateHeaderState(title); // Ubah header jadi judul kategori
+  updateHeaderState(title);
   coGrid.innerHTML = '';
   coScroll.scrollTop = 0;
   coOverlay.classList.add('show');
+  
+  // Catat history agar tombol back / swipe back HP merespons
+  history.pushState({ overlay: 'category' }, "", "");
   
   if (!list.length) {
     coGrid.innerHTML = '<div class="co-empty">Belum ada video</div>';
@@ -445,19 +445,77 @@ function openLocalCategory(title, list) {
 // Interaksi klik bagian tengah Header
 document.getElementById('header-center').onclick = function() {
   if (isCategoryOpen) {
-    // Jika kategori terbuka, tutup kategori dan kembalikan header
-    coOverlay.classList.remove('show');
-    updateHeaderState(null);
+    history.back(); // Memicu penutupan kategori lewat popstate
   } else {
-    // Jika di beranda, scroll ke atas
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 };
 
-// Interaksi tombol Bookmark di Header (Sekarang cuma ada 1 tombol Bookmark)
+// Interaksi tombol Bookmark di Header
 document.getElementById('bookmark-btn').onclick = function() {
   openLocalCategory('My Bookmarks', getBookmarks());
 };
+
+// ── SEARCH ──
+var searchOverlay = document.getElementById('search-overlay');
+var soInput   = document.getElementById('so-input');
+var soGrid    = document.getElementById('so-grid');
+var soSpinner = document.getElementById('so-spinner');
+var searchTimer = null;
+
+document.getElementById('search-btn').onclick = function() {
+  if (isCategoryOpen) {
+    coOverlay.classList.remove('show');
+    updateHeaderState(null); 
+    history.replaceState({ overlay: 'search' }, "", "");
+  } else {
+    history.pushState({ overlay: 'search' }, "", "");
+  }
+  
+  searchOverlay.classList.add('show');
+  soInput.focus();
+};
+
+document.getElementById('so-back').onclick = function() { 
+  history.back(); // Memicu penutupan search lewat popstate
+};
+
+// ── SWIPE BACK / HISTORY BACK HANDLER (MENCEGAH WEB TERTUTUP) ──
+window.addEventListener('popstate', function(e) {
+  var closedSomething = false;
+
+  if (searchOverlay.classList.contains('show')) {
+    searchOverlay.classList.remove('show');
+    closedSomething = true;
+  }
+  
+  if (isCategoryOpen) {
+    coOverlay.classList.remove('show');
+    updateHeaderState(null);
+    closedSomething = true;
+  }
+});
+
+updateBookmarkBadge();
+
+soInput.addEventListener('input', function() {
+  var q = this.value.trim().toLowerCase();
+  clearTimeout(searchTimer);
+  if (!q) { soGrid.innerHTML = ''; return; }
+  soSpinner.classList.add('show');
+  searchTimer = setTimeout(function() {
+    soSpinner.classList.remove('show');
+    var matches = masterVideos.filter(function(v) { return (v.title || '').toLowerCase().indexOf(q) !== -1; });
+    soGrid.innerHTML = '';
+    if (!matches.length) {
+      soGrid.innerHTML = '<div class="so-empty">Tidak ada video untuk "' + q + '"</div>';
+      return;
+    }
+    var frag = document.createDocumentFragment();
+    matches.forEach(function(v) { frag.appendChild(makePoster(v)); });
+    soGrid.appendChild(frag);
+  }, 350);
+});
 
 // ── INIT APP ──
 var rowsEl = document.getElementById('rows');
@@ -503,48 +561,6 @@ function initApp() {
     });
   });
 }
-
-// ── SEARCH ──
-var searchOverlay = document.getElementById('search-overlay');
-var soInput   = document.getElementById('so-input');
-var soGrid    = document.getElementById('so-grid');
-var soSpinner = document.getElementById('so-spinner');
-var searchTimer = null;
-
-// Logika Global Tombol Search
-document.getElementById('search-btn').onclick = function() {
-  // Sesuai permintaan: Jika kategori terbuka, tutup dulu sebelum search berjalan
-  if (isCategoryOpen) {
-    coOverlay.classList.remove('show');
-    updateHeaderState(null); // Kembalikan ke Logo normal
-  }
-  
-  // Buka Overlay Pencarian
-  searchOverlay.classList.add('show');
-  soInput.focus();
-};
-
-document.getElementById('so-back').onclick = function() { searchOverlay.classList.remove('show'); };
-updateBookmarkBadge();
-
-soInput.addEventListener('input', function() {
-  var q = this.value.trim().toLowerCase();
-  clearTimeout(searchTimer);
-  if (!q) { soGrid.innerHTML = ''; return; }
-  soSpinner.classList.add('show');
-  searchTimer = setTimeout(function() {
-    soSpinner.classList.remove('show');
-    var matches = masterVideos.filter(function(v) { return (v.title || '').toLowerCase().indexOf(q) !== -1; });
-    soGrid.innerHTML = '';
-    if (!matches.length) {
-      soGrid.innerHTML = '<div class="so-empty">Tidak ada video untuk "' + q + '"</div>';
-      return;
-    }
-    var frag = document.createDocumentFragment();
-    matches.forEach(function(v) { frag.appendChild(makePoster(v)); });
-    soGrid.appendChild(frag);
-  }, 350);
-});
 
 // ── SCROLL TO TOP ──
 var scrollTopHome = document.getElementById('scroll-top-home');
