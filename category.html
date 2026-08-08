@@ -29,15 +29,6 @@
 body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
 .wrap{width:100%;max-width:var(--wrap-max);margin:0 auto;min-height:100vh;position:relative;}
 
-@media (min-width:700px){ 
-  :root{--wrap-max:760px;--gutter:20px;} 
-  #cat-grid{grid-template-columns:repeat(4,1fr) !important;} 
-}
-@media (min-width:1000px){ 
-  :root{--wrap-max:1040px;} 
-  #cat-grid{grid-template-columns:repeat(5,1fr) !important;} 
-}
-
 #site-header{position:fixed;top:8px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:calc(var(--wrap-max) - 20px);height:48px;background:rgba(10,14,23,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:14px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
 .hdr-icon-btn{position:relative;background:none;border:none;color:var(--text);opacity:0.9;cursor:pointer;display:flex;padding:4px;text-decoration:none;flex-shrink:0;}
 .logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
@@ -48,7 +39,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 .page-body{padding:70px var(--gutter) 40px;}
 
-/* ── UNIVERSAL GRID RESET (Memaksa semua output JS rapi) ── */
+/* ── UNIVERSAL GRID RESET (Default HP: 3 Kolom) ── */
 #cat-grid {
   display: grid !important;
   grid-template-columns: repeat(3, 1fr) !important;
@@ -117,6 +108,16 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 }
 
 .cat-empty{grid-column:1/-1;text-align:center;padding:60px 0;font-size:12px;color:var(--text2);opacity:0.7;}
+
+/* ── MEDIA QUERIES (Diletakkan di bawah agar menimpa default 3 kolom di atas) ── */
+@media (min-width:700px){ 
+  :root{--wrap-max:760px;--gutter:20px;} 
+  #cat-grid{grid-template-columns:repeat(4,1fr) !important;} 
+}
+@media (min-width:1000px){ 
+  :root{--wrap-max:1040px;} 
+  #cat-grid{grid-template-columns:repeat(5,1fr) !important;} 
+}
 </style>
 </head>
 <body>
