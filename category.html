@@ -73,11 +73,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 /* Memaksa PEMBUNGKUS GAMBAR terkunci di rasio 2:3 */
 #cat-grid > * > div:first-child,
 #cat-grid .poster-thumb,
-#cat-grid [class*="thumb"] {
+#cat-grid [class*="thumb"],
+.bo-grid .poster-thumb {
   width: 100% !important;
-  aspect-ratio: 2/3 !important; /* Menggunakan rasio bawaan index */
-  height: auto !important; /* Reset height */
-  padding-bottom: 0 !important; /* Menghapus padding-bottom lama */
+  aspect-ratio: 2/3 !important; 
+  height: auto !important; 
+  padding-bottom: 0 !important; 
   position: relative !important;
   overflow: hidden !important;
   border-radius: 10px !important;
@@ -90,7 +91,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .poster-bookmark.active{color:#facc15;border-color:#facc15;}
 
 /* Memaksa SEMUA GAMBAR terpotong rapi di tengah (Crop) tanpa merusak rasio */
-#cat-grid img {
+#cat-grid img, 
+.bo-grid img {
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
@@ -100,6 +102,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   border-radius: 10px !important;
   display: block !important;
 }
+
 .bo-grid img.loaded{opacity:1;}
 
 /* Memaksa TULISAN JUDUL rata 2 baris untuk semua item */
