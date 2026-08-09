@@ -468,7 +468,14 @@ var coGrid       = document.getElementById('co-grid');
 var coScroll     = document.getElementById('co-scroll');
 var headerLogo   = document.getElementById('header-logo');
 var headerTitle  = document.getElementById('header-title');
+var leftHdrBtn   = document.getElementById('search-btn');
 var isCategoryOpen = false;
+
+// Search HANYA ada di header homepage. Begitu overlay bookmark/discover (category)
+// kebuka, tombol kiri berubah jadi back-arrow (konsisten dengan back-btn di
+// category.html/watch.html) — bukan search lagi.
+var ICON_SEARCH = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+var ICON_BACK   = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
 
 function updateHeaderState(title) {
   if (title) {
@@ -476,10 +483,14 @@ function updateHeaderState(title) {
     headerTitle.style.display = 'block';
     headerTitle.textContent = title;
     isCategoryOpen = true;
+    leftHdrBtn.innerHTML = ICON_BACK;
+    leftHdrBtn.setAttribute('aria-label', 'Back');
   } else {
     headerLogo.style.display = 'flex';
     headerTitle.style.display = 'none';
     isCategoryOpen = false;
+    leftHdrBtn.innerHTML = ICON_SEARCH;
+    leftHdrBtn.setAttribute('aria-label', 'Search');
   }
 }
 
@@ -525,13 +536,12 @@ var searchTimer = null;
 
 document.getElementById('search-btn').onclick = function() {
   if (isCategoryOpen) {
-    coOverlay.classList.remove('show');
-    updateHeaderState(null); 
-    history.replaceState({ overlay: 'search' }, "", "");
-  } else {
-    history.pushState({ overlay: 'search' }, "", "");
+    // Tombol ini sedang berperan sebagai "back", bukan search.
+    if (history.length > 1) history.back();
+    else window.location.href = '/';
+    return;
   }
-  
+  history.pushState({ overlay: 'search' }, "", "");
   searchOverlay.classList.add('show');
   soInput.focus();
 };
@@ -590,7 +600,10 @@ function initApp() {
     }
     var currentSeed = sessionSeed();
     var trending = seededShuffle(masterVideos, currentSeed).slice(0, ROW_SIZE);
-    var discover = seededShuffle(masterVideos, currentSeed + 1);
+    // Discover diacak ULANG tiap refresh (pakai shuffle() biasa, bukan seededShuffle)
+    // — konsisten dengan row kategori lain yang juga acak tiap load, bukan dikunci
+    // per sesi seperti Trending.
+    var discover = shuffle(masterVideos.slice());
 
     setHero(discover[0]);
     startHeroRotation(masterVideos);
