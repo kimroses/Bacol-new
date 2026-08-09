@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>bacoltv</title>
+<meta name="description" content="bacoltv — Free video streaming"/>
+<meta name="theme-color" content="#0a0e17"/>
+<link rel="icon" type="image/png" href="https://i.ibb.co.com/5xvnqQjj/1000165671.png"/>
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<style>
+*{-webkit-tap-highlight-color:transparent;box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0a0e17;
+  --bg2:#0d1220;
+  --card:#131a2b;
+  --border:rgba(255,255,255,0.08);
+  --text:#f1f5f9;
+  --text2:#8b95a7;
+  --accent:#3b82f6;
+  --accent2:#60a5fa;
+  --gutter:16px;
+  --wrap-max:520px; /* Default mobile — disamakan dengan category.html */
+  --hdr-top:8px;
+  --hdr-side:10px;
+  --plyr-color-main:#3b82f6;
+}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+/* ── 1. WRAPPER BEBAS BATAS LEBAR ── */
+.wrap{width:100%;margin:0 auto;min-height:100vh;position:relative;}
+
+/* ── GLOBAL HEADER ── */
+#site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:var(--bg);border:1px solid var(--border);border-radius:14px;z-index:460;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
+
+#header-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;height:100%;text-decoration:none;}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-icon{width:24px;height:24px;}
+.logo-icon img{width:100%;height:100%;object-fit:contain;}
+.logo-text{font-size:15px;font-weight:900;letter-spacing:0.06em;color:var(--text);}
+
+.hdr-btn{position:relative;background:none;border:none;color:var(--text);opacity:0.85;cursor:pointer;display:flex;padding:4px;text-decoration:none;flex-shrink:0;}
+.hdr-badge{position:absolute;top:-3px;right:-4px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--bg);}
+
+/* ── 2. CONTAINER: full-bleed, sama seperti category.html — yang dikunci
+   lebarnya cuma konten di dalamnya (pm-card & related-grid), bukan wrapper-nya ── */
+.page-body{
+  padding:70px var(--gutter) 40px;
+}
+
+/* ── PLAYER CARD ── */
+.pm-card{width:100%;max-width:var(--wrap-max);margin:0 auto;background:var(--card);border-radius:18px;overflow:hidden;border:1px solid var(--border);box-shadow:0 25px 70px rgba(0,0,0,0.55);}
+.pm-top{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(0,0,0,0.3);gap:6px;}
+.pm-title{font-size:13px;font-weight:800;color:#fff;flex:1;margin:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pm-player{width:100%;aspect-ratio:16/9;background:#000;position:relative;}
+.pm-player video{width:100%;height:100%;display:block;object-fit:contain;background:#000;}
+
+/* Plyr integration: make Plyr's wrapper fill the pm-player box exactly like the old native video did */
+.pm-player .plyr{width:100%;height:100%;border-radius:0;}
+.pm-player .plyr__video-wrapper{height:100%;background:#000;}
+.pm-player .plyr video{object-fit:contain;}
+
+/* Base dipakai bersama oleh 3 lapisan penutup player: loading spinner, klik-iklan, dan blokir-adblock */
+.player-overlay{position:absolute;inset:0;}
+
+.pm-loader{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:1;visibility:visible;transition:opacity 0.2s,visibility 0.2s;z-index:5;}
+.pm-loader:not(.show){opacity:0;visibility:hidden;}
+.pm-loader .spinner{width:26px;height:26px;border:3px solid rgba(59,130,246,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
+.pm-loader span{font-size:10px;color:var(--accent2);font-weight:700;text-align:center;padding:0 24px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.antiadblock-overlay{z-index:8;background:rgba(0,0,0,0.94);display:none;align-items:center;justify-content:center;padding:20px;text-align:center;}
+.antiadblock-overlay.show{display:flex;}
+.antiadblock-icon{width:34px;height:34px;color:var(--accent2);margin-bottom:10px;}
+.antiadblock-title{color:#fff;font-size:14px;font-weight:800;margin-bottom:6px;}
+.antiadblock-desc{color:var(--text2);font-size:11px;line-height:1.5;}
+
+/* ── ACTION BAR (CAPSULE) & SEO DESC ── */
+.pm-actions{display:flex;align-items:center;justify-content:space-around;margin:12px 14px;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;}
+.action-btn{background:none;border:none;color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;padding:4px;}
+.action-btn:active,.action-btn.active{color:var(--accent);transform:scale(0.92);}
+.action-btn svg{width:18px;height:18px;}
+
+.seo-desc{margin:0 14px 14px;font-size:11px;color:var(--text2);line-height:1.4;}
+.seo-desc b{color:var(--text);font-weight:700;}
+
+/* ── RELATED / RANDOM VIDEOS ── */
+.related-section { margin-top:20px; max-width:var(--wrap-max); margin-left:auto; margin-right:auto; }
+.related-head { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.related-bar { width:4px; height:14px; background:var(--accent); border-radius:2px; flex-shrink:0; }
+.related-title { font-size:12px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; color:var(--text); }
+.related-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100%; }
+
+.poster { display: flex !important; flex-direction: column !important; text-decoration: none !important; color: inherit !important; width: 100% !important; min-width: 0 !important; }
+
+/* ── 3. RATIO THUMBNAIL (ASPECT-RATIO) ── */
+.poster-thumb { 
+  width: 100% !important; 
+  aspect-ratio: 2/3 !important; 
+  height: auto !important; 
+  padding-bottom: 0 !important; 
+  position: relative !important; 
+  border-radius: 10px; 
+  overflow: hidden; 
+  background: var(--card); 
+  border: 1px solid var(--border); 
+  flex-shrink: 0; 
+}
+
+.poster-thumb img { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; opacity: 0; transition: opacity 0.3s; }
+.poster-thumb img.loaded { opacity: 1; }
+.poster-thumb .pph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); }
+.poster-title-sub { margin-top: 6px !important; font-size: 11px !important; font-weight: 700 !important; line-height: 1.3 !important; height: 28.6px !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; text-overflow: ellipsis !important; word-break: break-word; opacity: 0.92; }
+.poster-bookmark{position:absolute;top:6px;left:6px;z-index:6;width:24px;height:24px;border-radius:7px;background:rgba(5,8,16,0.8);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;}
+.poster-bookmark.active{color:#facc15;border-color:#facc15;}
+
+/* ── BOOKMARK OVERLAY (lokal, tanpa pindah halaman) ── */
+#bookmark-overlay{position:fixed;inset:0;z-index:450;background:var(--bg);display:none;flex-direction:column;}
+#bookmark-overlay.show{display:flex;}
+.bo-body{
+  flex:1;
+  overflow-y:auto;
+  padding:70px var(--gutter) 40px;
+}
+.bo-grid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:10px;width:100%;max-width:var(--wrap-max);margin:0 auto;}
+.bo-empty{grid-column:1/-1;text-align:center;padding:60px 0;font-size:12px;color:var(--text2);opacity:0.7;}
+
+/* ── 4. RESPONSIVE MEDIA QUERIES (Disatukan agar identik dengan Kategori & Index) ── */
+@media (min-width:700px){ 
+  :root{--wrap-max:760px;--gutter:20px;} 
+  .related-grid, .bo-grid {grid-template-columns:repeat(5, minmax(0, 1fr)) !important;}
+}
+@media (min-width:1000px){ 
+  :root{--wrap-max:1040px;--gutter:24px;} 
+  .related-grid, .bo-grid {grid-template-columns:repeat(6, minmax(0, 1fr)) !important;}
+}
+@media (min-width:1320px){ 
+  :root{--wrap-max:1280px;--gutter:28px;}
+  .related-grid, .bo-grid {grid-template-columns:repeat(7, minmax(0, 1fr)) !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- GLOBAL HEADER: sama persis dengan index.html / category.html -->
+  <header id="site-header">
+    <button class="hdr-btn" id="back-btn" aria-label="Back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+
+    <a id="header-center" href="/" aria-label="Back to Home">
+      <div class="logo">
+        <div class="logo-icon"><img src="https://i.ibb.co.com/5xvnqQjj/1000165671.png" alt="Logo"></div>
+        <span class="logo-text">BACOLTV</span>
+      </div>
+    </a>
+
+    <button class="hdr-btn" id="watch-nav-bookmark" aria-label="Tersimpan">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      <span class="hdr-badge" id="watch-nav-bookmark-badge">0</span>
+    </button>
+  </header>
+
+  <div class="page-body">
+    <!-- PLAYER CARD CUSTOM (COMPACT) -->
+    <div class="pm-card">
+      <div class="pm-top">
+        <span class="pm-title" id="video-title">Loading...</span>
+      </div>
+      <div class="pm-player">
+        <video id="main-player" playsinline controls></video>
+        <div class="player-overlay pm-loader show" id="player-loader">
+          <div class="spinner"></div>
+          <span>jika terus buffering server lagi gangguan - coba reload</span>
+        </div>
+        <!-- ANTI ADBLOCK OVERLAY -->
+        <div class="player-overlay antiadblock-overlay" id="antiadblock-overlay">
+          <div>
+            <svg class="antiadblock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>
+            <p class="antiadblock-title">AdBlock Terdeteksi</p>
+            <p class="antiadblock-desc">Agar video dapat diputar, silakan nonaktifkan AdBlock</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ACTION BAR CAPSULE -->
+      <div class="pm-actions">
+        <!-- Share -->
+        <button class="action-btn" id="btn-share" aria-label="Share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+        <!-- Bookmark (video ini) -->
+        <button class="action-btn" id="btn-bookmark" aria-label="Bookmark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <!-- Download -->
+        <button class="action-btn" id="btn-download" aria-label="Download">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+      </div>
+
+      <!-- SEO DESCRIPTION -->
+      <div class="seo-desc">
+        Nonton streaming <b id="seo-title-inject">...</b> online gratis dengan kualitas terbaik. Nikmati koleksi hiburan tanpa batas kapan saja dan di mana saja hanya di BACOLTV.
+      </div>
+    </div>
+
+    <!-- RELATED / RANDOM VIDEOS -->
+    <div class="related-section">
+      <div class="related-head">
+        <div class="related-bar"></div>
+        <div class="related-title">Video Lainnya / Random</div>
+      </div>
+      <div class="related-grid" id="related-grid">
+        <!-- Card dimuat via JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKMARK OVERLAY -->
+<div id="bookmark-overlay">
+  <div class="bo-body">
+    <div class="bo-grid" id="bo-grid"></div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG BACKEND BACOLTV ──
+var API = 'https://vidoy-x.zalpro.workers.dev';
+var PROXY_WORKER = 'https://proxy-vidoy.zalpro.workers.dev';
+var API_KEY = 'hQwtIQTI22dJubmGhkKl';
+var ROOT_FOLDER = 'rxk071a6llo';
+var THUMB_HOST  = 'https://xpvid.cc';
+var FALLBACK_THUMB = 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=500&auto=format&fit=crop';
+// Semua config & logic Adsterra ada di 1 section: cari "IKLAN (ADSTERRA)" di bawah.
+
+var currentVideoData = null;
+// Cache video (by id) dari hasil /folder/:id listing — dipakai supaya bookmark dari
+// tombol player pakai thumbnail sumber yang SAMA dengan bookmark dari card related
+// (endpoint /video/:id kadang mengembalikan thumbnail versi lain, baked-in play icon)
+var videoLibraryCache = {};
+
+function fetchJSON(url) {
+  return fetch(url, { headers: { 'X-API-Key': API_KEY } })
+    .then(function(r) { return r.json(); })
+    .catch(function() { return null; });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CACHE KATALOG (sama persis dengan index.html, dipakai bareng lewat
+// sessionStorage — 1 tab = 1 cache, dipakai lintas halaman). Menghindari
+// fetch ulang "1 root + semua subfolder" tiap buka video baru dalam sesi
+// yang sama. Cache basi otomatis setelah 1 jam.
+// ══════════════════════════════════════════════════════════════════
+var CATALOG_CACHE_KEY = 'bt_catalog_cache';
+var CATALOG_CACHE_TTL_MS = 60 * 60 * 1000; // 1 jam
+
+function readCatalogCache() {
+  try {
+    var raw = sessionStorage.getItem(CATALOG_CACHE_KEY);
+    if (!raw) return null;
+    var data = JSON.parse(raw);
+    if (!data || !data.ts || (Date.now() - data.ts) > CATALOG_CACHE_TTL_MS) return null;
+    return data;
+  } catch (e) { return null; }
+}
+function writeCatalogCache(subfolders, videos) {
+  try {
+    sessionStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify({ ts: Date.now(), subfolders: subfolders, videos: videos }));
+  } catch (e) {}
+}
+
+// Mengembalikan Promise -> { subfolders: [{id,title}], videos: [{id,title,thumbnail,parent_id}] }
+function getCatalogData() {
+  var cached = readCatalogCache();
+  if (cached) return Promise.resolve(cached);
+
+  return fetchJSON(API + '/folder/' + ROOT_FOLDER).then(function(json) {
+    if (!json || json.status !== 'success') return { subfolders: [], videos: [] };
+
+    var subfolders = json.data.subfolders || [];
+    var rootVideos = (json.data.videos || []).map(function(v) {
+      return { id: v.id, title: v.title, thumbnail: v.thumbnail, parent_id: null };
+    });
+
+    var subfetches = subfolders.map(function(fld) {
+      return fetchJSON(API + '/folder/' + fld.id).then(function(subJson) {
+        var vids = (subJson && subJson.status === 'success') ? (subJson.data.videos || []) : [];
+        return vids.map(function(v) {
+          return { id: v.id, title: v.title, thumbnail: v.thumbnail, parent_id: fld.id };
+        });
+      });
+    });
+
+    return Promise.all(subfetches).then(function(results) {
+      var videos = rootVideos.slice();
+      results.forEach(function(vids) { videos = videos.concat(vids); });
+      var subfoldersLight = subfolders.map(function(fld) { return { id: fld.id, title: fld.title }; });
+      writeCatalogCache(subfoldersLight, videos);
+      return { subfolders: subfoldersLight, videos: videos };
+    });
+  });
+}
+
+function resolveThumb(v) {
+  var t = v.thumbnail;
+  if (!t) return FALLBACK_THUMB;
+  if (t.indexOf('/') === 0) return THUMB_HOST + t;
+  return t;
+}
+
+function slugify(text) {
+  return String(text || '')
+    .toLowerCase()
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-{2,}/g, '-') || 'video';
+}
+function watchHref(v) { return '/watch/' + slugify(v.title) + '-' + v.id; }
+
+// ── BOOKMARKS (key sama dengan index.html & category.html) ──
+var BOOKMARK_KEY = 'bt_bookmarks';
+function getBookmarks() { try { return JSON.parse(localStorage.getItem(BOOKMARK_KEY)) || []; } catch (e) { return []; } }
+function saveBookmarks(list) { try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify(list)); } catch (e) {} }
+function toggleBookmarkGeneric(v) {
+  var list = getBookmarks(); var idx = -1;
+  for (var i = 0; i < list.length; i++) { if (String(list[i].id) === String(v.id)) { idx = i; break; } }
+  if (idx > -1) list.splice(idx, 1);
+  else list.unshift({ id: v.id, title: v.title, thumbnail: v.thumbnail });
+  saveBookmarks(list);
+}
+
+// Badge bookmark di header global (jumlah total bookmark, bukan status video ini)
+function updateHeaderBookmarkBadge() {
+  var n = getBookmarks().length;
+  var badge = document.getElementById('watch-nav-bookmark-badge');
+  if (badge) {
+    if (n > 0) { badge.textContent = n > 9 ? '9+' : String(n); badge.style.display = 'flex'; }
+    else { badge.style.display = 'none'; }
+  }
+}
+updateHeaderBookmarkBadge();
+
+// ── TOMBOL BACK (ganti search) ──
+document.getElementById('back-btn').onclick = function() {
+  if (history.length > 1) history.back();
+  else window.location.href = '/';
+};
+
+// ── BOOKMARK OVERLAY (lokal, tanpa pindah halaman) ──
+var headerCenterEl = document.getElementById('header-center');
+var headerCenterOriginalHTML = headerCenterEl.innerHTML;
+var bookmarkOverlayEl = document.getElementById('bookmark-overlay');
+var boGridEl = document.getElementById('bo-grid');
+var isBookmarkOverlayOpen = false;
+
+function renderBookmarkGrid() {
+  var list = getBookmarks();
+  boGridEl.innerHTML = '';
+  if (!list.length) {
+    boGridEl.innerHTML = '<div class="bo-empty">Belum ada bookmark</div>';
+    return;
+  }
+  var frag = document.createDocumentFragment();
+  // showBookmarkBtn=true -> tampilkan ikon bookmark aktif di pojok kartu (khusus overlay ini)
+  list.forEach(function(v) { frag.appendChild(makePoster(v)); });
+  boGridEl.appendChild(frag);
+}
+
+function openBookmarkOverlay() {
+  renderBookmarkGrid();
+  headerCenterEl.innerHTML = '<span style="font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--text);">MY BOOKMARKS</span>';
+  bookmarkOverlayEl.classList.add('show');
+  isBookmarkOverlayOpen = true;
+  history.pushState({ overlay: 'bookmark' }, '', '');
+}
+
+function closeBookmarkOverlay() {
+  bookmarkOverlayEl.classList.remove('show');
+  headerCenterEl.innerHTML = headerCenterOriginalHTML;
+  isBookmarkOverlayOpen = false;
+}
+
+document.getElementById('watch-nav-bookmark').onclick = openBookmarkOverlay;
+
+headerCenterEl.addEventListener('click', function(e) {
+  if (isBookmarkOverlayOpen) {
+    e.preventDefault();
+    history.back();
+  }
+});
+
+window.addEventListener('popstate', function() {
+  if (isBookmarkOverlayOpen) closeBookmarkOverlay();
+});
+
+/* ══════════════════════════════════════════════════════════════════
+   DETEKSI ADBLOCK — semua unit iklan sudah dihapus dari watch.html,
+   tapi deteksi ini tetap aktif sesuai permintaan. Dual-check (script-load
+   test + bait-div test), butuh 2x konfirmasi berturut-turut sebelum
+   overlay muncul/hilang biar tidak kedap-kedip kalau salah satu metode
+   false-positive sesaat.
+   ══════════════════════════════════════════════════════════════════ */
+
+// URL script iklan asli dipakai murni sebagai "umpan" tes — kalau browser
+// memblokir permintaan ke URL ini, berarti adblock aktif. Bukan menampilkan
+// iklan apapun, cuma dipakai buat deteksi.
+var ADBLOCK_TEST_SCRIPT_SRC = 'https://dependedunmoved.com/065169dd18b734cf3df238a49c4742b8/invoke.js';
+
+var antiAdblockOverlay = document.getElementById('antiadblock-overlay');
+
+function scriptAdCheck(callback) {
+  var done = false;
+  var s = document.createElement('script');
+  s.src = ADBLOCK_TEST_SCRIPT_SRC;
+  s.async = true;
+  function finish(blocked) {
+    if (done) return;
+    done = true;
+    if (s.parentNode) s.parentNode.removeChild(s);
+    callback(blocked);
+  }
+  s.onload = function() { finish(false); };
+  s.onerror = function() { finish(true); };
+  document.body.appendChild(s);
+  setTimeout(function() { finish(true); }, 3000);
+}
+
+function baitDivCheck(callback) {
+  var bait = document.createElement('div');
+  bait.className = 'adsbox ad-banner ads adsbygoogle pub_300x250 pub_300x250m pub_728x90 text-ad textAd text_ad text-ads';
+  bait.style.cssText = 'width:1px!important;height:1px!important;position:absolute!important;left:-9999px!important;top:-9999px!important;';
+  document.body.appendChild(bait);
+  setTimeout(function() {
+    var blocked = false;
+    if (bait.offsetParent === null || bait.offsetHeight === 0 || bait.offsetWidth === 0 || bait.clientHeight === 0) blocked = true;
+    var cs = window.getComputedStyle(bait);
+    if (cs.display === 'none' || cs.visibility === 'hidden') blocked = true;
+    bait.remove();
+    callback(blocked);
+  }, 100);
+}
+
+function detectAdBlock(callback) {
+  var pending = 2;
+  var anyBlocked = false;
+  function done(blocked) {
+    if (blocked) anyBlocked = true;
+    pending--;
+    if (pending === 0) callback(anyBlocked);
+  }
+  scriptAdCheck(done);
+  baitDivCheck(done);
+}
+
+function showOverlay() {
+  antiAdblockOverlay.classList.add('show');
+  if (typeof videoEl !== 'undefined' && videoEl && !videoEl.paused) videoEl.pause();
+}
+function hideOverlay() {
+  antiAdblockOverlay.classList.remove('show');
+}
+
+var BLOCK_CONFIRMATIONS_NEEDED = 2;
+var CLEAR_CONFIRMATIONS_NEEDED = 2;
+var consecutiveBlocked = 0;
+var consecutiveClear = 0;
+function runCheck() {
+  detectAdBlock(function(blocked) {
+    if (blocked) {
+      consecutiveClear = 0;
+      consecutiveBlocked++;
+      if (consecutiveBlocked >= BLOCK_CONFIRMATIONS_NEEDED) showOverlay();
+    } else {
+      consecutiveBlocked = 0;
+      consecutiveClear++;
+      if (consecutiveClear >= CLEAR_CONFIRMATIONS_NEEDED) hideOverlay();
+    }
+  });
+}
+runCheck();
+setInterval(runCheck, 4000);
+/* ═══════════════════════════════════ END DETEKSI ADBLOCK ═══════════════════════════════════ */
+
+// ── PLAYER (Plyr.js + hls.js) ──
+var videoEl = document.getElementById('main-player');
+
+// Init Plyr on the native <video> element. Plyr wraps the existing node
+// in place (it does not destroy/recreate it), so videoEl / hls.attachMedia
+// below keep working exactly like before — only the visible controls change.
+var player = new Plyr(videoEl, {
+  controls: ['play-large', 'play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'settings', 'pip', 'fullscreen'],
+  settings: ['speed'],
+  speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
+  clickToPlay: true,
+  keyboard: { focused: true, global: false },
+  tooltips: { controls: false, seek: true },
+  i18n: {
+    play: 'Play', pause: 'Pause', mute: 'Mute', unmute: 'Unmute',
+    settings: 'Pengaturan', speed: 'Kecepatan', normal: 'Normal',
+    enterFullscreen: 'Fullscreen', exitFullscreen: 'Keluar Fullscreen'
+  }
+});
+
+var playerLoader = document.getElementById('player-loader');
+videoEl.addEventListener('canplay', function() { playerLoader.classList.remove('show'); });
+videoEl.addEventListener('loadeddata', function() { playerLoader.classList.remove('show'); });
+videoEl.addEventListener('playing', function() { playerLoader.classList.remove('show'); });
+
+var hlsInstance = null;
+
+function setTitle(text) { 
+  document.getElementById('video-title').textContent = text;
+  var seoInject = document.getElementById('seo-title-inject');
+  if (seoInject) seoInject.textContent = text;
+}
+
+// Render satu kartu poster. Dipakai untuk related videos DAN overlay bookmark.
+// Tombol bookmark SELALU tampil di tiap kartu (konsisten dengan index.html &
+// category.html) — statusnya (aktif/tidak) mengikuti apakah video itu sudah
+// ada di daftar bookmark, bukan tergantung dari mana kartu ini dipanggil.
+function makePoster(v) {
+  var title = v.title || 'Untitled';
+  var thumb = resolveThumb(v);
+  var isBookmarked = getBookmarks().some(function(b) { return String(b.id) === String(v.id); });
+
+  var el = document.createElement('a');
+  el.className = 'poster';
+  el.href = watchHref(v);
+
+  var th = document.createElement('div');
+  th.className = 'poster-thumb';
+
+  // placeholder ikon play, hilang begitu thumbnail asli selesai dimuat
+  var ph = document.createElement('div');
+  ph.className = 'pph';
+  ph.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="9,7 9,17 19,12" fill="rgba(59,130,246,0.6)"/></svg>';
+  th.appendChild(ph);
+
+  var img = document.createElement('img');
+  img.alt = title;
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.onload = function() { this.classList.add('loaded'); ph.style.display = 'none'; };
+  img.onerror = function() { this.style.display = 'none'; };
+  img.src = thumb;
+  th.appendChild(img);
+
+  var bm = document.createElement('button');
+  bm.type = 'button';
+  bm.className = 'poster-bookmark' + (isBookmarked ? ' active' : '');
+  bm.setAttribute('aria-label', 'Bookmark');
+  bm.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>';
+  bm.onclick = function(e) {
+    e.preventDefault(); e.stopPropagation();
+    toggleBookmarkGeneric(v);
+    updateHeaderBookmarkBadge();
+    bm.classList.toggle('active');
+    renderBookmarkGrid();
+    if (currentVideoData && String(currentVideoData.id) === String(v.id)) checkBookmarkStatus();
+  };
+  th.appendChild(bm);
+
+  var t = document.createElement('div');
+  t.className = 'poster-title-sub';
+  t.textContent = title;
+
+  el.appendChild(th);
+  el.appendChild(t);
+  return el;
+}
+
+// Related/Random Videos — pakai cache katalog terpusat (sama dengan index.html),
+// jadi kalau user sudah pernah buka homepage atau video lain dalam sesi ini,
+// bagian ini langsung tampil tanpa fetch ulang sama sekali.
+function loadRelatedVideos(currentVideoId) {
+  getCatalogData().then(function(data) {
+    var masterVideos = data.videos || [];
+
+    // Simpan ke videoLibraryCache + samakan thumbnail video yang sedang diputar
+    // dengan versi listing (perbaikan bug: bookmark dari tombol player sebelumnya
+    // pakai thumbnail dari /video/:id yang ada ikon play permanen di gambarnya)
+    masterVideos.forEach(function(v) { videoLibraryCache[v.id] = v; });
+    if (currentVideoData && String(currentVideoData.id) === String(currentVideoId) && videoLibraryCache[currentVideoId]) {
+      currentVideoData.thumbnail = videoLibraryCache[currentVideoId].thumbnail;
+    }
+
+    var filtered = masterVideos.filter(function(v) { return String(v.id) !== String(currentVideoId); });
+    filtered.sort(function() { return 0.5 - Math.random(); });
+    var recommendations = filtered.slice(0, 15);
+
+    var gridEl = document.getElementById('related-grid');
+    gridEl.innerHTML = '';
+    var frag = document.createDocumentFragment();
+    recommendations.forEach(function(v) {
+      frag.appendChild(makePoster(v));
+    });
+    gridEl.appendChild(frag);
+  }).catch(function() {});
+}
+
+function loadVideo(id, fallbackTitle) {
+  playerLoader.classList.add('show');
+  setTitle(fallbackTitle || 'Loading...');
+
+  fetch(API + '/video/' + id, { headers: { 'X-API-Key': API_KEY } })
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      if (json.status !== 'success') {
+        setTitle('Error loading video');
+        playerLoader.classList.remove('show');
+        return;
+      }
+      var rawUrl = json.data.direct_url;
+      if (!rawUrl) {
+        setTitle('Error: Direct Link tidak ditemukan');
+        playerLoader.classList.remove('show');
+        return;
+      }
+      var finalTitle = json.data.title || fallbackTitle || 'Untitled';
+      setTitle(finalTitle);
+
+      var proxiedUrl = PROXY_WORKER + '/' + rawUrl;
+
+      // Simpan data untuk aksi tombol
+      currentVideoData = {
+        id: id,
+        title: finalTitle,
+        thumbnail: json.data.thumbnail || '',
+        downloadUrl: proxiedUrl
+      };
+      checkBookmarkStatus();
+
+      if (hlsInstance) hlsInstance.destroy();
+      var isHls = (json.data.format === 'hls') || (!json.data.format && rawUrl.includes('.m3u8'));
+
+      if (isHls) {
+        if (Hls.isSupported()) {
+          hlsInstance = new Hls();
+          hlsInstance.loadSource(proxiedUrl);
+          hlsInstance.attachMedia(videoEl);
+          hlsInstance.on(Hls.Events.ERROR, function(e, data) {
+            if (data.fatal) playerLoader.classList.remove('show');
+          });
+        } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+          videoEl.src = proxiedUrl;
+        }
+      } else {
+        videoEl.src = proxiedUrl;
+      }
+
+      loadRelatedVideos(id);
+    })
+    .catch(function() {
+      setTitle('Network Server Error');
+      playerLoader.classList.remove('show');
+    });
+}
+
+var initial = window.__VIDEO_INITIAL__;
+if (initial && initial.id) {
+  loadVideo(initial.id, initial.title);
+} else {
+  var m = location.pathname.match(/^\/watch\/([^\/?#]+)/);
+  var slug = m ? decodeURIComponent(m[1]) : null;
+  var id = slug ? slug.split('-').pop() : null;
+  if (id) loadVideo(id);
+  else setTitle('Video not found');
+}
+
+// ── LOGIKA TOMBOL AKSI ──
+document.getElementById('btn-share').onclick = function() {
+  var url = window.location.href;
+  var title = currentVideoData ? currentVideoData.title : 'BACOLTV Video';
+  if (navigator.share) {
+    navigator.share({ title: title, url: url }).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(url);
+    alert('Link video berhasil disalin!');
+  }
+};
+
+var btnBookmark = document.getElementById('btn-bookmark');
+function checkBookmarkStatus() {
+  if (!currentVideoData) return;
+  var list = getBookmarks();
+  var isBookmarked = list.some(function(b) { return String(b.id) === String(currentVideoData.id); });
+  btnBookmark.classList.toggle('active', isBookmarked);
+}
+
+btnBookmark.onclick = function() {
+  if (!currentVideoData) return;
+  var list = getBookmarks();
+  var idx = -1;
+  for (var i = 0; i < list.length; i++) { 
+    if (String(list[i].id) === String(currentVideoData.id)) { idx = i; break; } 
+  }
+  
+  if (idx > -1) {
+    list.splice(idx, 1);
+    btnBookmark.classList.remove('active');
+  } else {
+    list.unshift({ id: currentVideoData.id, title: currentVideoData.title, thumbnail: currentVideoData.thumbnail });
+    btnBookmark.classList.add('active');
+  }
+  saveBookmarks(list);
+  updateHeaderBookmarkBadge(); // sinkronkan badge header setelah toggle
+};
+
+document.getElementById('btn-download').onclick = function() {
+  if (!currentVideoData || !currentVideoData.downloadUrl) {
+    alert('URL unduhan belum tersedia.');
+    return;
+  }
+  window.open(currentVideoData.downloadUrl, '_blank');
+};
+</script>
+</body>
+</html>
