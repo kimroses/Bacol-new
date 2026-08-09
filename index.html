@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>BACOLTV</title>
+<meta name="description" content="BACOLTV — Nonton streaming gratis"/>
+<meta name="theme-color" content="#0a0e17"/>
+<meta name="google-site-verification" content="bb4l5GB-3FYBKQ9igkwZ4raF2h0S_VnGgOulOpFpivM" />
+<link rel="icon" type="image/png" href="https://i.ibb.co.com/5xvnqQjj/1000165671.png"/>
+<style>
+*{-webkit-tap-highlight-color:transparent;box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0a0e17;
+  --bg2:#0d1220;
+  --card:#131a2b;
+  --border:rgba(255,255,255,0.08);
+  --text:#f1f5f9;
+  --text2:#8b95a7;
+  --accent:#3b82f6;
+  --accent2:#60a5fa;
+  --gold:#facc15;
+  --gutter:16px;
+  --wrap-max:520px;
+  --hdr-top:8px;
+  --hdr-side:10px;
+}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.wrap{width:100%;max-width:var(--wrap-max);margin:0 auto;min-height:100vh;position:relative;}
+
+/* ── GLOBAL HEADER ── */
+#site-header{position:fixed;top:var(--hdr-top);left:50%;transform:translateX(-50%);width:calc(100% - 2*var(--hdr-side));max-width:calc(var(--wrap-max) - 2*var(--hdr-side));height:48px;background:var(--bg);border:1px solid var(--border);border-radius:14px;z-index:410;display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:0 10px 28px rgba(0,0,0,0.4);}
+
+/* Bagian tengah header dinamis (Logo / Judul Kategori) */
+#header-center {position:absolute;left:50%;transform:translateX(-50%);cursor:pointer;display:flex;align-items:center;justify-content:center;height:100%;}
+#header-center .logo{position:relative;left:auto;transform:none;display:flex;align-items:center;gap:8px;text-decoration:none;pointer-events:none;}
+.logo-icon{width:24px;height:24px;}
+.logo-icon img{width:100%;height:100%;object-fit:contain;}
+.logo-text{font-size:15px;font-weight:900;letter-spacing:0.06em;color:var(--text);}
+.header-title{font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--text);display:none;}
+
+.hdr-btn{position:relative;background:none;border:none;color:var(--text);opacity:0.85;cursor:pointer;display:flex;padding:4px;}
+.hdr-badge{position:absolute;top:-3px;right:-4px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--bg);}
+
+/* ── HERO ── */
+.hero{position:relative;width:100%;aspect-ratio:3/4;max-height:60vh;overflow:hidden;background:#000;}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center top;}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,rgba(10,14,23,0.55) 45%,rgba(10,14,23,0.1) 75%,rgba(10,14,23,0.35) 100%);}
+.hero-content{position:absolute;left:0;right:0;bottom:0;padding:0 var(--gutter) 20px;z-index:2;}
+.hero-title{font-size:22px;font-weight:900;letter-spacing:0.02em;text-transform:uppercase;line-height:1.1;margin-bottom:14px;text-shadow:0 2px 10px rgba(0,0,0,0.6);}
+.hero-watch{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 26px;font-size:13px;font-weight:800;letter-spacing:0.05em;cursor:pointer;box-shadow:0 6px 20px rgba(59,130,246,0.35);text-decoration:none;}
+.hero-watch svg{flex-shrink:0;}
+.hero-skel{position:absolute;inset:0;background:linear-gradient(135deg,#131a2b,#0d1220);}
+.hero-bg,.hero-content{transition:opacity 0.35s ease;}
+.hero.fading .hero-bg,.hero.fading .hero-content{opacity:0;}
+
+/* ── ROWS ── */
+.rows{padding:18px 0 40px;}
+.row{margin-bottom:26px;}
+.row-head{display:flex;align-items:center;gap:8px;padding:0 var(--gutter);margin-bottom:12px;}
+.row-head-main{display:flex;align-items:center;gap:8px;min-width:0;}
+.row-bar{width:4px;height:15px;background:var(--accent);border-radius:2px;flex-shrink:0;}
+.row-title{font-size:13px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-viewall{margin-left:auto;flex-shrink:0;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--text2);background:none;border:none;cursor:pointer;padding:4px;text-decoration:none;}
+.row-viewall svg{flex-shrink:0;}
+
+.row-scroll{display:flex;gap:10px;overflow-x:auto;padding:0 0 2px 0;scroll-padding-left:var(--gutter);scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.row-scroll::-webkit-scrollbar{display:none;}
+.row-scroll::before{content:'';flex:0 0 var(--gutter);}
+.row-scroll::after{content:'';flex:0 0 var(--gutter);}
+
+/* ── POSTER CARD ── */
+.poster { flex-shrink:0; width:118px; scroll-snap-align:start; -webkit-user-select:none; user-select:none; display:flex !important; flex-direction:column !important; color:inherit; text-decoration:none; content-visibility: auto; contain-intrinsic-size: 118px 213px; }
+.poster-thumb { width:100% !important; aspect-ratio:2/3 !important; border-radius:10px; overflow:hidden; position:relative; background:var(--card); border:1px solid var(--border); }
+.poster-thumb .pbg { display: none !important; } 
+.poster-thumb img { position:absolute !important; inset:0 !important; width:100% !important; height:100% !important; object-fit:cover !important; display:block !important; opacity:0; transition:opacity 0.3s; z-index:1 !important; }
+.poster-thumb img.loaded{opacity:1;}
+.poster-thumb .pph{position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(30,41,59,0.4));}
+.poster-rank{position:absolute;top:0px;right:6px;z-index:5;font-size:42px;font-weight:900;line-height:1;font-family:'Impact','Arial Black',sans-serif;color:var(--bg);-webkit-text-stroke:1.8px var(--accent2);filter:drop-shadow(0px 4px 10px rgba(0,0,0,0.95));text-shadow:0px 2px 8px rgba(0,0,0,0.9);pointer-events:none;user-select:none;}
+.poster-bookmark{position:absolute;top:6px;left:6px;z-index:6;width:24px;height:24px;border-radius:7px;background:rgba(5,8,16,0.8);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;}
+.poster-bookmark.active{color:var(--gold);border-color:var(--gold);}
+.poster-title { margin-top:7px; font-size:11px; font-weight:700; line-height:1.3; height:28.6px !important; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; opacity:0.92; }
+.row-loading{padding:0 16px;font-size:11px;color:var(--text2);opacity:0.6;}
+
+/* ── OVERLAYS (SEARCH & CATEGORY) ── */
+#category-overlay{position:fixed;inset:0;z-index:400;background:var(--bg);display:none;flex-direction:column;}
+#search-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);display:none;flex-direction:column;}
+#search-overlay.show, #category-overlay.show{display:flex;}
+
+/* Search Overlay Top */
+.so-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);width: 100%; max-width: var(--wrap-max); margin: 0 auto;}
+.so-back{background:none;border:none;color:var(--text);display:flex;padding:4px;cursor:pointer;}
+.so-box{flex:1;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:8px 14px;}
+.so-box input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:13px;}
+.so-box input::placeholder{color:var(--text2);}
+.so-body{flex:1;overflow-y:auto;padding:16px;}
+
+/* Category Overlay Body */
+.co-body{flex:1;overflow-y:auto;padding:var(--gutter);padding-top:70px;}
+
+.so-empty, .co-empty{grid-column:1/-1;text-align:center;padding:60px 0;font-size:12px;color:var(--text2);opacity:0.7;}
+.so-spinner{display:none;align-items:center;justify-content:center;gap:8px;padding:24px 0;font-size:11px;color:var(--accent2);font-weight:700;}
+.so-spinner.show{display:flex;}
+.so-spinner .spinner{width:14px;height:14px;border:2px solid rgba(59,130,246,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
+
+/* ── OVERLAY GRID ── */
+.so-grid, .co-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; align-items: start !important; width: 100% !important; max-width: var(--wrap-max) !important; margin: 0 auto !important; }
+.so-grid > *, .co-grid > * { display: flex !important; flex-direction: column !important; width: 100% !important; min-width: 0 !important; overflow: hidden !important; }
+.so-grid .poster-thumb, .co-grid .poster-thumb { width: 100% !important; height: 0 !important; padding-bottom: 145% !important; position: relative !important; overflow: hidden !important; border-radius: 10px !important; flex-shrink: 0 !important; }
+
+/* ── SCROLL TO TOP ── */
+.scroll-top-btn{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(12px);z-index:70;width:34px;height:34px;border-radius:50%;background:rgba(19,26,43,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;}
+.scroll-top-btn.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
+.scroll-top-btn.in-overlay{z-index:410;}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;z-index:99999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;transition:opacity 0.6s ease,visibility 0.6s ease;}
+#splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
+.splash-icon{position:relative;z-index:1;width:66px;height:66px;filter:drop-shadow(0 0 24px rgba(96,165,250,0.9));}
+.splash-icon img{width:100%;height:100%;object-fit:contain;}
+.splash-text{position:relative;z-index:1;margin-top:22px;font-size:21px;font-weight:900;letter-spacing:0.35em;padding-left:0.35em;color:#fff;}
+
+/* ── RESPONSIVE MEDIA QUERIES (kolom grid disamakan dengan category.html/watch.html: 5→6→7) ── */
+@media (min-width:700px){
+  :root{--wrap-max:760px;--gutter:20px;}
+  .poster{width:135px; contain-intrinsic-size: 135px 235px;}
+  .hero{aspect-ratio:16/9;max-height:55vh;}
+  .so-grid, .co-grid { grid-template-columns: repeat(5, 1fr) !important; }
+}
+@media (min-width:1000px){
+  :root{--wrap-max:1040px;--gutter:24px;}
+  .poster{width:150px; contain-intrinsic-size: 150px 258px;}
+  .hero{aspect-ratio:16/7;max-height:55vh;}
+  .so-grid, .co-grid { grid-template-columns: repeat(6, 1fr) !important; }
+}
+@media (min-width:1320px){
+  :root{--wrap-max:1280px;--gutter:28px;}
+  .poster{width:165px; contain-intrinsic-size: 165px 281px;}
+  .so-grid, .co-grid { grid-template-columns: repeat(7, 1fr) !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="splash-icon"><img src="https://i.ibb.co.com/5xvnqQjj/1000165671.png" alt="Logo"></div>
+  <span class="splash-text">BACOLTV</span>
+</div>
+
+<!-- GLOBAL HEADER -->
+<header id="site-header">
+  <button class="hdr-btn" id="search-btn" aria-label="Search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  </button>
+  
+  <div id="header-center" aria-label="Home/Back">
+    <div class="logo" id="header-logo">
+      <div class="logo-icon"><img src="https://i.ibb.co.com/5xvnqQjj/1000165671.png" alt="Logo"></div>
+      <span class="logo-text">BACOLTV</span>
+    </div>
+    <span class="header-title" id="header-title"></span>
+  </div>
+  
+  <button class="hdr-btn" id="bookmark-btn" aria-label="Bookmarks">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    <span class="hdr-badge" id="hdr-bookmark-badge">0</span>
+  </button>
+</header>
+
+<div class="wrap">
+  <div class="hero" id="hero">
+    <div class="hero-skel" id="hero-skel"></div>
+    <div class="hero-bg" id="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-title" id="hero-title">Loading...</div>
+      <a class="hero-watch" id="hero-watch" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="6,4 20,12 6,20"/></svg>
+        WATCH
+      </a>
+    </div>
+  </div>
+
+  <div class="rows" id="rows"></div>
+
+  <button class="scroll-top-btn" id="scroll-top-home" aria-label="Scroll to top">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+</div>
+
+<!-- CATEGORY OVERLAY -->
+<div id="category-overlay">
+  <div class="co-body" id="co-scroll">
+    <div class="co-grid" id="co-grid"></div>
+  </div>
+  <button class="scroll-top-btn in-overlay" id="scroll-top-co" aria-label="Scroll to top">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-overlay">
+  <div class="so-top">
+    <button class="so-back" id="so-back" aria-label="Back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="so-box">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="so-input" type="text" placeholder="Cari video..." autocomplete="off" autocorrect="off" spellcheck="false"/>
+    </div>
+  </div>
+  <div class="so-body">
+    <div class="so-spinner" id="so-spinner"><div class="spinner"></div><span>Searching...</span></div>
+    <div class="so-grid" id="so-grid"></div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+var API         = 'https://vidoy-x.zalpro.workers.dev';
+var ROOT_FOLDER = 'rxk071a6llo';
+var API_KEY     = 'hQwtIQTI22dJubmGhkKl';
+var ROW_SIZE    = 15;
+var THUMB_HOST  = 'https://xpvid.cc';
+var FALLBACK_THUMB = 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=500&auto=format&fit=crop';
+
+function fetchJSON(url) {
+  return fetch(url, { headers: { 'X-API-Key': API_KEY } })
+    .then(function(r) { return r.json(); })
+    .catch(function() { return null; });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CACHE KATALOG (dipakai bareng index.html & watch.html lewat sessionStorage)
+// Data video/folder jarang berubah drastis dalam hitungan menit, jadi
+// di-cache 1 jam per tab. Menghindari fetch ulang "1 root + semua subfolder"
+// setiap kali homepage dibuka / pindah ke halaman video lain dalam sesi yang
+// sama. Kalau data ternyata berubah lebih dari 1 jam, cache otomatis basi
+// dan di-fetch ulang sendiri — tidak perlu campur tangan manual.
+// ══════════════════════════════════════════════════════════════════
+var CATALOG_CACHE_KEY = 'bt_catalog_cache';
+var CATALOG_CACHE_TTL_MS = 60 * 60 * 1000; // 1 jam
+
+function readCatalogCache() {
+  try {
+    var raw = sessionStorage.getItem(CATALOG_CACHE_KEY);
+    if (!raw) return null;
+    var data = JSON.parse(raw);
+    if (!data || !data.ts || (Date.now() - data.ts) > CATALOG_CACHE_TTL_MS) return null;
+    return data;
+  } catch (e) { return null; }
+}
+function writeCatalogCache(subfolders, videos) {
+  try {
+    sessionStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify({ ts: Date.now(), subfolders: subfolders, videos: videos }));
+  } catch (e) {} // storage penuh/disabled -> diam saja, tetap jalan tanpa cache
+}
+
+// Mengembalikan Promise -> { subfolders: [{id,title}], videos: [{id,title,thumbnail,parent_id}] }
+// Videos root (bukan di subfolder manapun) diberi parent_id = null.
+function getCatalogData() {
+  var cached = readCatalogCache();
+  if (cached) return Promise.resolve(cached);
+
+  return fetchJSON(API + '/folder/' + ROOT_FOLDER).then(function(json) {
+    if (!json || json.status !== 'success') return { subfolders: [], videos: [] };
+
+    var subfolders = json.data.subfolders || [];
+    var rootVideos = (json.data.videos || []).map(function(v) {
+      return { id: v.id, title: v.title, thumbnail: v.thumbnail, parent_id: null };
+    });
+
+    var subfetches = subfolders.map(function(fld) {
+      return fetchJSON(API + '/folder/' + fld.id).then(function(subJson) {
+        var vids = (subJson && subJson.status === 'success') ? (subJson.data.videos || []) : [];
+        return vids.map(function(v) {
+          return { id: v.id, title: v.title, thumbnail: v.thumbnail, parent_id: fld.id };
+        });
+      });
+    });
+
+    return Promise.all(subfetches).then(function(results) {
+      var videos = rootVideos.slice();
+      results.forEach(function(vids) { videos = videos.concat(vids); });
+      var subfoldersLight = subfolders.map(function(fld) { return { id: fld.id, title: fld.title }; });
+      writeCatalogCache(subfoldersLight, videos);
+      return { subfolders: subfoldersLight, videos: videos };
+    });
+  });
+}
+
+function resolveThumb(v) {
+  var t = v.thumbnail;
+  if (!t) return FALLBACK_THUMB;
+  if (t.indexOf('/') === 0) return THUMB_HOST + t;
+  return t;
+}
+
+function slugify(text) {
+  return String(text || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').replace(/-{2,}/g, '-') || 'video';
+}
+function watchHref(v) { return '/watch/' + slugify(v.title) + '-' + v.id; }
+function categoryHref(fld) { return '/category/' + slugify(fld.title) + '-' + fld.id; }
+
+function shuffle(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr;
+}
+function seededRandom(seed) {
+  return function() {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function sessionSeed() {
+  var s = sessionStorage.getItem('bt_session_seed');
+  if (!s) { s = Math.floor(Math.random() * 1000000); sessionStorage.setItem('bt_session_seed', s); }
+  return parseInt(s);
+}
+function seededShuffle(arr, seed) {
+  var rnd = seededRandom(seed);
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(rnd() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+var splashTimer = setTimeout(hideSplash, 3500);
+function hideSplash() {
+  clearTimeout(splashTimer);
+  setTimeout(function() {
+    var el = document.getElementById('splash');
+    if (el) el.classList.add('hide');
+  }, 300);
+}
+
+// ── BOOKMARKS ──
+var BOOKMARK_KEY = 'bt_bookmarks';
+function getBookmarks() { try { return JSON.parse(localStorage.getItem(BOOKMARK_KEY)) || []; } catch (e) { return []; } }
+function saveBookmarks(list) { try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify(list)); } catch (e) {} }
+function isBookmarked(id) { return getBookmarks().some(function(b) { return b.id === id; }); }
+function toggleBookmark(v) {
+  var list = getBookmarks();
+  var idx = -1;
+  for (var i = 0; i < list.length; i++) { if (list[i].id === v.id) { idx = i; break; } }
+  var nowBookmarked;
+  if (idx > -1) { list.splice(idx, 1); nowBookmarked = false; }
+  else { list.unshift({ id: v.id, title: v.title, thumbnail: v.thumbnail }); nowBookmarked = true; }
+  saveBookmarks(list);
+  updateBookmarkBadge();
+  return nowBookmarked;
+}
+
+function updateBookmarkBadge() {
+  var n = getBookmarks().length;
+  var badge = document.getElementById('hdr-bookmark-badge');
+  if (badge) {
+    if (n > 0) { badge.textContent = n > 9 ? '9+' : String(n); badge.style.display = 'flex'; }
+    else { badge.style.display = 'none'; }
+  }
+}
+
+// ── POSTER CARD ──
+function makePoster(v, rank) {
+  var title = v.title || 'Untitled';
+  var thumb = resolveThumb(v);
+  var el = document.createElement('a');
+  el.className = 'poster';
+  el.href = watchHref(v);
+  var th = document.createElement('div');
+  th.className = 'poster-thumb';
+  var ph = document.createElement('div');
+  ph.className = 'pph';
+  ph.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><polygon points="9,7 9,17 19,12" fill="rgba(59,130,246,0.5)"/></svg>';
+  th.appendChild(ph);
+  var img = document.createElement('img');
+  img.alt = title; img.loading = 'lazy'; img.decoding = 'async';
+  img.onload = function() { this.classList.add('loaded'); ph.style.display = 'none'; };
+  img.onerror = function() { this.style.display = 'none'; };
+  img.src = thumb;
+  th.appendChild(img);
+  if (rank) {
+    var rankEl = document.createElement('div');
+    rankEl.className = 'poster-rank';
+    rankEl.textContent = rank;
+    th.appendChild(rankEl);
+  }
+  var bm = document.createElement('button');
+  bm.type = 'button';
+  bm.className = 'poster-bookmark' + (isBookmarked(v.id) ? ' active' : '');
+  bm.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>';
+  bm.onclick = function(e) {
+    e.preventDefault(); e.stopPropagation();
+    toggleBookmark(v);
+    bm.classList.toggle('active', isBookmarked(v.id));
+  };
+  th.appendChild(bm);
+  var t = document.createElement('div');
+  t.className = 'poster-title';
+  t.textContent = title;
+  el.appendChild(th);
+  el.appendChild(t);
+  return el;
+}
+
+function buildRow(title, videos, viewAll, showRank) {
+  var row = document.createElement('div'); row.className = 'row';
+  var head = document.createElement('div'); head.className = 'row-head';
+  head.innerHTML = '<div class="row-head-main"><div class="row-bar"></div><div class="row-title"></div></div>';
+  head.querySelector('.row-title').textContent = title;
+  if (viewAll) {
+    var isLink = typeof viewAll === 'string';
+    var va = document.createElement(isLink ? 'a' : 'button');
+    va.className = 'row-viewall';
+    va.innerHTML = 'Lihat Semua <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+    if (isLink) va.href = viewAll; else va.onclick = viewAll;
+    head.appendChild(va);
+  }
+  var scroll = document.createElement('div'); scroll.className = 'row-scroll';
+  if (!videos.length) {
+    var msg = document.createElement('div'); msg.className = 'row-loading'; msg.textContent = 'Belum ada video';
+    row.appendChild(head); row.appendChild(msg); return row;
+  }
+  videos.forEach(function(v, idx) { scroll.appendChild(makePoster(v, showRank ? (idx + 1) : null)); });
+  row.appendChild(head); row.appendChild(scroll);
+  return row;
+}
+
+var heroEl = document.getElementById('hero');
+function setHero(v, animate) {
+  if (!v) return;
+  function apply() {
+    document.getElementById('hero-bg').style.backgroundImage = "url('" + resolveThumb(v) + "')";
+    document.getElementById('hero-title').textContent = v.title || 'Untitled';
+    document.getElementById('hero-skel').style.display = 'none';
+    document.getElementById('hero-watch').href = watchHref(v);
+  }
+  if (animate) {
+    heroEl.classList.add('fading');
+    setTimeout(function() { apply(); heroEl.classList.remove('fading'); }, 350);
+  } else { apply(); }
+}
+var heroTimer = null, heroPool = [];
+function startHeroRotation(pool) {
+  heroPool = pool.slice();
+  if (heroTimer) clearInterval(heroTimer);
+  if (heroPool.length < 2) return;
+  heroTimer = setInterval(function() {
+    var v = heroPool[Math.floor(Math.random() * heroPool.length)];
+    setHero(v, true);
+  }, 6000);
+}
+
+// ── HEADER & CATEGORY OVERLAY LOGIC ──
+var coOverlay    = document.getElementById('category-overlay');
+var coGrid       = document.getElementById('co-grid');
+var coScroll     = document.getElementById('co-scroll');
+var headerLogo   = document.getElementById('header-logo');
+var headerTitle  = document.getElementById('header-title');
+var isCategoryOpen = false;
+
+function updateHeaderState(title) {
+  if (title) {
+    headerLogo.style.display = 'none';
+    headerTitle.style.display = 'block';
+    headerTitle.textContent = title;
+    isCategoryOpen = true;
+  } else {
+    headerLogo.style.display = 'flex';
+    headerTitle.style.display = 'none';
+    isCategoryOpen = false;
+  }
+}
+
+function openLocalCategory(title, list) {
+  updateHeaderState(title);
+  coGrid.innerHTML = '';
+  coScroll.scrollTop = 0;
+  coOverlay.classList.add('show');
+  
+  // Catat history agar tombol back / swipe back HP merespons
+  history.pushState({ overlay: 'category' }, "", "");
+  
+  if (!list.length) {
+    coGrid.innerHTML = '<div class="co-empty">Belum ada video</div>';
+    return;
+  }
+  
+  var frag = document.createDocumentFragment();
+  list.forEach(function(v) { frag.appendChild(makePoster(v)); });
+  coGrid.appendChild(frag);
+}
+
+// Interaksi klik bagian tengah Header
+document.getElementById('header-center').onclick = function() {
+  if (isCategoryOpen) {
+    history.back(); // Memicu penutupan kategori lewat popstate
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+// Interaksi tombol Bookmark di Header
+document.getElementById('bookmark-btn').onclick = function() {
+  openLocalCategory('My Bookmarks', getBookmarks());
+};
+
+// ── SEARCH ──
+var searchOverlay = document.getElementById('search-overlay');
+var soInput   = document.getElementById('so-input');
+var soGrid    = document.getElementById('so-grid');
+var soSpinner = document.getElementById('so-spinner');
+var searchTimer = null;
+
+document.getElementById('search-btn').onclick = function() {
+  if (isCategoryOpen) {
+    coOverlay.classList.remove('show');
+    updateHeaderState(null); 
+    history.replaceState({ overlay: 'search' }, "", "");
+  } else {
+    history.pushState({ overlay: 'search' }, "", "");
+  }
+  
+  searchOverlay.classList.add('show');
+  soInput.focus();
+};
+
+document.getElementById('so-back').onclick = function() { 
+  history.back(); // Memicu penutupan search lewat popstate
+};
+
+// ── SWIPE BACK / HISTORY BACK HANDLER (MENCEGAH WEB TERTUTUP) ──
+window.addEventListener('popstate', function(e) {
+  var closedSomething = false;
+
+  if (searchOverlay.classList.contains('show')) {
+    searchOverlay.classList.remove('show');
+    closedSomething = true;
+  }
+  
+  if (isCategoryOpen) {
+    coOverlay.classList.remove('show');
+    updateHeaderState(null);
+    closedSomething = true;
+  }
+});
+
+updateBookmarkBadge();
+
+soInput.addEventListener('input', function() {
+  var q = this.value.trim().toLowerCase();
+  clearTimeout(searchTimer);
+  if (!q) { soGrid.innerHTML = ''; return; }
+  soSpinner.classList.add('show');
+  searchTimer = setTimeout(function() {
+    soSpinner.classList.remove('show');
+    var matches = masterVideos.filter(function(v) { return (v.title || '').toLowerCase().indexOf(q) !== -1; });
+    soGrid.innerHTML = '';
+    if (!matches.length) {
+      soGrid.innerHTML = '<div class="so-empty">Tidak ada video untuk "' + q + '"</div>';
+      return;
+    }
+    var frag = document.createDocumentFragment();
+    matches.forEach(function(v) { frag.appendChild(makePoster(v)); });
+    soGrid.appendChild(frag);
+  }, 350);
+});
+
+// ── INIT APP ──
+var rowsEl = document.getElementById('rows');
+var masterVideos = [];
+
+function initApp() {
+  getCatalogData().then(function(data) {
+    masterVideos = data.videos || [];
+    if (!masterVideos.length) {
+      rowsEl.innerHTML = '<div class="row-loading" style="padding:40px 16px;text-align:center;">Belum ada video.</div>';
+      hideSplash(); return;
+    }
+    var currentSeed = sessionSeed();
+    var trending = seededShuffle(masterVideos, currentSeed).slice(0, ROW_SIZE);
+    var discover = seededShuffle(masterVideos, currentSeed + 1);
+
+    setHero(discover[0]);
+    startHeroRotation(masterVideos);
+    rowsEl.appendChild(buildRow('Trending', trending, null, true));
+    rowsEl.appendChild(buildRow('Discover', discover.slice(0, ROW_SIZE), function() { openLocalCategory('Discover', discover); }));
+
+    (data.subfolders || []).forEach(function(fld) {
+      var vids = masterVideos.filter(function(v) { return v.parent_id === fld.id; });
+      if (!vids.length) return;
+      rowsEl.appendChild(buildRow(fld.title, shuffle(vids.slice()).slice(0, ROW_SIZE), categoryHref(fld)));
+    });
+    hideSplash();
+  });
+}
+
+// ── SCROLL TO TOP ──
+var scrollTopHome = document.getElementById('scroll-top-home');
+window.addEventListener('scroll', function() { scrollTopHome.classList.toggle('show', window.scrollY > 400); }, { passive: true });
+scrollTopHome.onclick = function() { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+
+var scrollTopCo = document.getElementById('scroll-top-co');
+coScroll.addEventListener('scroll', function() { scrollTopCo.classList.toggle('show', coScroll.scrollTop > 400); }, { passive: true });
+scrollTopCo.onclick = function() { coScroll.scrollTo({ top: 0, behavior: 'smooth' }); };
+
+initApp();
+</script>
+</body>
+</html>
