@@ -8,15 +8,15 @@
 <meta http-equiv="Expires" content="0" />
 <title>BACOLTV</title>
 <meta name="description" content="BACOLTV — Nonton streaming gratis"/>
-<meta name="theme-color" content="#0a0e17"/>
+<meta name="theme-color" content="#141414"/>
 <meta name="google-site-verification" content="bb4l5GB-3FYBKQ9igkwZ4raF2h0S_VnGgOulOpFpivM" />
 <link rel="icon" type="image/png" href="https://i.ibb.co.com/5xvnqQjj/1000165671.png"/>
 <style>
 *{-webkit-tap-highlight-color:transparent;box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#0a0e17;
-  --bg2:#0d1220;
-  --card:#131a2b;
+  --bg:#141414;
+  --bg2:#181818;
+  --card:#1f1f1f;
   --border:rgba(255,255,255,0.08);
   --text:#f1f5f9;
   --text2:#8b95a7;
@@ -48,12 +48,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 /* ── HERO ── */
 .hero{position:relative;width:100%;aspect-ratio:3/4;max-height:60vh;overflow:hidden;background:#000;}
 .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center top;}
-.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,rgba(10,14,23,0.55) 45%,rgba(10,14,23,0.1) 75%,rgba(10,14,23,0.35) 100%);}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,rgba(20,20,20,0.55) 45%,rgba(20,20,20,0.1) 75%,rgba(20,20,20,0.35) 100%);}
 .hero-content{position:absolute;left:0;right:0;bottom:0;padding:0 var(--gutter) 20px;z-index:2;}
 .hero-title{font-size:22px;font-weight:900;letter-spacing:0.02em;text-transform:uppercase;line-height:1.1;margin-bottom:14px;text-shadow:0 2px 10px rgba(0,0,0,0.6);}
 .hero-watch{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 26px;font-size:13px;font-weight:800;letter-spacing:0.05em;cursor:pointer;box-shadow:0 6px 20px rgba(229,9,20,0.35);text-decoration:none;}
 .hero-watch svg{flex-shrink:0;}
-.hero-skel{position:absolute;inset:0;background:linear-gradient(135deg,#131a2b,#0d1220);}
+.hero-skel{position:absolute;inset:0;background:linear-gradient(135deg,#1f1f1f,#181818);}
 .hero-bg,.hero-content{transition:opacity 0.35s ease;}
 .hero.fading .hero-bg,.hero.fading .hero-content{opacity:0;}
 
@@ -112,7 +112,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .so-grid .poster-thumb, .co-grid .poster-thumb { width: 100% !important; height: 0 !important; padding-bottom: 145% !important; position: relative !important; overflow: hidden !important; border-radius: 10px !important; flex-shrink: 0 !important; }
 
 /* ── SCROLL TO TOP ── */
-.scroll-top-btn{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(12px);z-index:70;width:34px;height:34px;border-radius:50%;background:rgba(19,26,43,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;}
+.scroll-top-btn{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(12px);z-index:70;width:34px;height:34px;border-radius:50%;background:rgba(31,31,31,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;}
 .scroll-top-btn.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
 .scroll-top-btn.in-overlay{z-index:410;}
 
@@ -494,10 +494,23 @@ function updateHeaderState(title) {
   }
 }
 
-// Token render untuk co-grid. Kalau overlay ditutup/diganti isinya (misal user
-// buka Discover lalu cepat-cepat ganti ke Bookmarks) saat render batch masih
-// jalan, batch lama otomatis berhenti nyambung — nggak nyampur sama list baru.
-var coRenderToken = 0;
+// Render co-grid TIDAK lagi sekaligus/rAF-batch — sekarang cuma render kartu
+// SEBANYAK YANG PERLU (isi layar awal), lalu nambah lagi otomatis begitu user
+// scroll mendekati bawah (persis pola infinite-scroll). Efeknya: kalau user
+// belum sempat scroll jauh terus langsung klik back, DOM yang perlu ditutup
+// cuma sedikit — seringan Bookmark — bukan udah kadung numpuk ratusan/ribuan
+// elemen dari awal (itu sumber freeze sebelumnya).
+var coPendingList = [];
+var coRenderedCount = 0;
+var CO_INITIAL_COUNT = 30;
+var CO_LOAD_MORE_COUNT = 30;
+
+function renderCoChunk(count) {
+  var frag = document.createDocumentFragment();
+  var end = Math.min(coRenderedCount + count, coPendingList.length);
+  for (; coRenderedCount < end; coRenderedCount++) frag.appendChild(makePoster(coPendingList[coRenderedCount]));
+  coGrid.appendChild(frag);
+}
 
 function openLocalCategory(title, list) {
   updateHeaderState(title);
@@ -507,31 +520,16 @@ function openLocalCategory(title, list) {
   
   // Catat history agar tombol back / swipe back HP merespons
   history.pushState({ overlay: 'category' }, "", "");
+
+  coPendingList = list;
+  coRenderedCount = 0;
   
   if (!list.length) {
     coGrid.innerHTML = '<div class="co-empty">Belum ada video</div>';
     return;
   }
   
-  // Discover ("lihat semua") memang sengaja TIDAK dibatasi jumlahnya — tujuannya
-  // memang nampilin seluruh katalog. Supaya tidak freeze kalau videonya banyak
-  // (ratusan/ribuan), render-nya dipecah per BATCH lewat requestAnimationFrame,
-  // bukan sekaligus. Browser tetap dapat "napas" antar batch, jadi UI tetap
-  // responsif walau daftar totalnya besar.
-  var BATCH_SIZE = 40;
-  var i = 0;
-  coRenderToken++;
-  var myToken = coRenderToken;
-
-  function renderBatch() {
-    if (myToken !== coRenderToken) return; // dibatalkan (overlay ganti isi/ditutup)
-    var frag = document.createDocumentFragment();
-    var end = Math.min(i + BATCH_SIZE, list.length);
-    for (; i < end; i++) frag.appendChild(makePoster(list[i]));
-    coGrid.appendChild(frag);
-    if (i < list.length) requestAnimationFrame(renderBatch);
-  }
-  renderBatch();
+  renderCoChunk(CO_INITIAL_COUNT);
 }
 
 // Interaksi klik bagian tengah Header
@@ -583,7 +581,6 @@ window.addEventListener('popstate', function(e) {
   if (isCategoryOpen) {
     coOverlay.classList.remove('show');
     updateHeaderState(null);
-    coRenderToken++; // hentikan batch render co-grid yang mungkin masih jalan
     closedSomething = true;
   }
 });
@@ -647,7 +644,15 @@ window.addEventListener('scroll', function() { scrollTopHome.classList.toggle('s
 scrollTopHome.onclick = function() { window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
 var scrollTopCo = document.getElementById('scroll-top-co');
-coScroll.addEventListener('scroll', function() { scrollTopCo.classList.toggle('show', coScroll.scrollTop > 400); }, { passive: true });
+coScroll.addEventListener('scroll', function() {
+  scrollTopCo.classList.toggle('show', coScroll.scrollTop > 400);
+  // Load-more: nambah 30 kartu lagi begitu user scroll mendekati bawah,
+  // bukan render semuanya di awal.
+  if (coRenderedCount < coPendingList.length) {
+    var nearBottom = (coScroll.scrollTop + coScroll.clientHeight) > (coScroll.scrollHeight - 600);
+    if (nearBottom) renderCoChunk(CO_LOAD_MORE_COUNT);
+  }
+}, { passive: true });
 scrollTopCo.onclick = function() { coScroll.scrollTo({ top: 0, behavior: 'smooth' }); };
 
 initApp();
