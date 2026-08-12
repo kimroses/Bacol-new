@@ -77,7 +77,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .poster-thumb .pbg { display: none !important; } 
 .poster-thumb img { position:absolute !important; inset:0 !important; width:100% !important; height:100% !important; object-fit:cover !important; display:block !important; opacity:0; transition:opacity 0.3s; z-index:1 !important; }
 .poster-thumb img.loaded{opacity:1;}
-.poster-thumb .pph{position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(229,9,20,0.14),rgba(31,31,31,0.5));}
+.poster-thumb .pph{position:absolute;inset:0;z-index:0;background:linear-gradient(135deg,rgba(229,9,20,0.14),rgba(31,31,31,0.5));}
 .poster-rank{position:absolute;top:0px;right:6px;z-index:5;font-size:42px;font-weight:900;line-height:1;font-family:'Impact','Arial Black',sans-serif;color:var(--bg);-webkit-text-stroke:1.8px var(--accent2);filter:drop-shadow(0px 4px 10px rgba(0,0,0,0.95));text-shadow:0px 2px 8px rgba(0,0,0,0.9);pointer-events:none;user-select:none;}
 .poster-bookmark{position:absolute;top:6px;left:6px;z-index:6;width:24px;height:24px;border-radius:7px;background:rgba(5,8,16,0.8);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;}
 .poster-bookmark.active{color:var(--accent);border-color:var(--accent);}
@@ -120,12 +120,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 /* ── SPLASH ── */
 #splash{position:fixed;inset:0;z-index:99999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;transition:opacity 0.6s ease,visibility 0.6s ease;}
 #splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
-.splash-icon{position:relative;z-index:1;width:66px;height:66px;filter:drop-shadow(0 0 18px rgba(229,9,20,0.7));animation:splashPulse 1.8s ease-in-out infinite;}
+.splash-icon{position:relative;z-index:1;width:66px;height:66px;filter:drop-shadow(0 0 22px rgba(229,9,20,0.85));animation:splashPulse 1.8s ease-in-out infinite;}
 .splash-icon img{width:100%;height:100%;object-fit:contain;}
 .splash-text{position:relative;z-index:1;margin-top:22px;font-size:21px;font-weight:900;letter-spacing:0.35em;padding-left:0.35em;color:#fff;opacity:0;animation:splashTextFade 0.8s ease 0.15s forwards;}
 @keyframes splashPulse{
-  0%,100%{filter:drop-shadow(0 0 14px rgba(229,9,20,0.55));transform:scale(1);}
-  50%{filter:drop-shadow(0 0 30px rgba(229,9,20,1));transform:scale(1.06);}
+  0%,100%{filter:drop-shadow(0 0 18px rgba(229,9,20,0.65));transform:scale(1);}
+  50%{filter:drop-shadow(0 0 38px rgba(229,9,20,1));transform:scale(1.08);}
 }
 @keyframes splashTextFade{
   from{opacity:0;transform:translateY(6px);}
@@ -343,13 +343,22 @@ function seededShuffle(arr, seed) {
   return a;
 }
 
-var splashTimer = setTimeout(hideSplash, 3500);
+// Splash dijamin tampil MINIMAL 1.8 detik (persis 1 siklus animasi glow-nya)
+// walau data sudah selesai dimuat lebih cepat dari itu (misal lagi kepakai
+// cache katalog yang bisa resolve dalam hitungan puluhan milidetik) — supaya
+// efek pulse merahnya kelihatan jelas, bukan kepotong duluan.
+var SPLASH_MIN_MS = 1800;
+var SPLASH_MAX_MS = 3500; // batas atas jaga-jaga kalau loading lambat/gagal
+var splashStart = Date.now();
+var splashTimer = setTimeout(hideSplash, SPLASH_MAX_MS);
 function hideSplash() {
   clearTimeout(splashTimer);
+  var elapsed = Date.now() - splashStart;
+  var remaining = Math.max(0, SPLASH_MIN_MS - elapsed);
   setTimeout(function() {
     var el = document.getElementById('splash');
     if (el) el.classList.add('hide');
-  }, 300);
+  }, remaining);
 }
 
 // ── BOOKMARKS ──
@@ -389,7 +398,6 @@ function makePoster(v, rank) {
   th.className = 'poster-thumb';
   var ph = document.createElement('div');
   ph.className = 'pph';
-  ph.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><polygon points="9,7 9,17 19,12" fill="rgba(229,9,20,0.5)"/></svg>';
   th.appendChild(ph);
   var img = document.createElement('img');
   img.alt = title; img.loading = 'lazy'; img.decoding = 'async';
