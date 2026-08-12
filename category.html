@@ -11,18 +11,18 @@
 
 <title>Kategori Halaman</title>
 <meta name="description" content="bacoltv — Free video streaming"/>
-<meta name="theme-color" content="#0a0e17"/>
+<meta name="theme-color" content="#141414"/>
 <link rel="icon" type="image/png" href="https://i.ibb.co.com/5xvnqQjj/1000165671.png"/>
 
 <style>
 *{-webkit-tap-highlight-color:transparent;box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#0a0e17;
-  --card:#131a2b;
+  --bg:#141414;
+  --card:#1f1f1f;
   --border:rgba(255,255,255,0.08);
   --text:#f1f5f9;
   --text2:#8b95a7;
-  --accent:#3b82f6;
+  --accent:#E50914;
   --gutter:16px;
   --wrap-max:520px;
   --hdr-top:8px;
@@ -88,7 +88,11 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 }
 
 .poster-bookmark{position:absolute;top:6px;left:6px;z-index:6;width:24px;height:24px;border-radius:7px;background:rgba(5,8,16,0.8);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;}
-.poster-bookmark.active{color:#facc15;border-color:#facc15;}
+.poster-bookmark.active{color:var(--accent);border-color:var(--accent);}
+
+/* Placeholder sebelum thumbnail muncul — SAMA dengan index.html/watch.html:
+   gradient merah-tint + ikon play, fade ke gambar asli begitu selesai load. */
+.poster-thumb .pph{position:absolute;inset:0;z-index:0;background:linear-gradient(135deg,rgba(229,9,20,0.14),rgba(31,31,31,0.5));}
 
 /* Memaksa SEMUA GAMBAR terpotong rapi di tengah (Crop) tanpa merusak rasio */
 #cat-grid img, 
@@ -101,8 +105,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   object-fit: cover !important;
   border-radius: 10px !important;
   display: block !important;
+  z-index: 1 !important;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
+#cat-grid img.loaded,
 .bo-grid img.loaded{opacity:1;}
 
 /* Memaksa TULISAN JUDUL rata 2 baris untuk semua item */
@@ -309,6 +317,9 @@ document.getElementById('back-btn').onclick = function(e) {
     el.href = watchHref(v);
     var th = document.createElement('div');
     th.className = 'poster-thumb';
+    var ph = document.createElement('div');
+    ph.className = 'pph';
+    th.appendChild(ph);
     var img = document.createElement('img');
     img.alt = title; img.loading = 'lazy'; img.decoding = 'async';
     img.onload = function() { this.classList.add('loaded'); };
