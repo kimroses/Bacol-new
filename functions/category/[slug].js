@@ -4,6 +4,17 @@
 // Chip subfolder SENGAJA tidak dirender di sini — sudah terwakili lewat
 // tombol "Lihat Semua" per baris kategori di homepage.
 //
+// CATATAN PERBAIKAN:
+// - Sebelumnya tiap kartu punya <div class="pbg" style="background-image:...">
+//   yang ternyata MATI (di-`display:none !important` di CSS category.html) —
+//   jadi placeholder sebelum thumbnail muncul sama sekali nggak kepakai.
+//   Sekarang diganti <div class="pph"> (placeholder gradient — sama dengan
+//   pola index.html/watch.html, TANPA ikon, cuma gradient warna) yang
+//   dirender LANGSUNG dari server, jadi langsung ada tanpa nunggu JS jalan.
+// - <img> dikasih atribut onload/onerror inline (fade-in ke gambar asli,
+//   sembunyikan kalau gagal load) — jalan murni dari HTML, nggak butuh
+//   JS tambahan di client sama sekali.
+//
 // CARA PASANG:
 // 1. Taruh file ini di: functions/category/[slug].js
 // 2. Taruh category.html di root project, sejajar index.html & watch.html
@@ -42,8 +53,9 @@ function renderVideoCards(videos) {
     return (
       '<a class="poster" href="' + href + '">' +
         '<div class="poster-thumb">' +
-          '<div class="pbg" style="background-image:url(\'' + thumb + '\')"></div>' +
-          '<img src="' + thumb + '" alt="' + title + '" loading="lazy" decoding="async">' +
+          '<div class="pph"></div>' +
+          '<img src="' + thumb + '" alt="' + title + '" loading="lazy" decoding="async" ' +
+            'onload="this.classList.add(\'loaded\')" onerror="this.style.display=\'none\'">' +
         '</div>' +
         '<div class="poster-title">' + title + '</div>' +
       '</a>'
