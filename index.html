@@ -130,9 +130,16 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   content:'';
   position:absolute;
   left:50%; top:50%;
-  width:180px; height:180px;
+  width:320px; height:320px;
   transform:translate(-50%,-50%) scale(0.9);
-  background:radial-gradient(circle, rgba(229,9,20,0.65) 0%, rgba(229,9,20,0.3) 40%, rgba(229,9,20,0) 72%);
+  background:radial-gradient(circle,
+    rgba(229,9,20,0.75) 0%,
+    rgba(229,9,20,0.5) 20%,
+    rgba(229,9,20,0.28) 38%,
+    rgba(229,9,20,0.12) 55%,
+    rgba(229,9,20,0.04) 72%,
+    rgba(229,9,20,0) 100%);
+  filter:blur(8px);
   z-index:-1;
   pointer-events:none;
   animation:splashGlowPulse 1.8s ease-in-out infinite;
