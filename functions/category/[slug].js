@@ -23,7 +23,7 @@
 import { extractIdFromSlug, buildCategorySlug, buildWatchSlug } from '../_lib/slug.js';
 
 const API = 'https://vidoy-x.zalpro.workers.dev';
-const SITE_URL = 'https://cdn-videycom.pages.dev'; // ganti ke domain asli kamu
+const SITE_URL = 'https://onlyflix.pages.dev'; // ganti ke domain asli kamu
 const DEFAULT_IMAGE = 'https://i.ibb.co.com/5xvnqQjj/1000165671.png';
 const THUMB_HOST = 'https://xpvid.cc';
 
@@ -105,8 +105,8 @@ async function handle(context) {
   const assetUrl = new URL('/category', request.url);
   const originalResponse = await env.ASSETS.fetch(new Request(assetUrl, request));
 
-  const pageTitle = categoryTitle + ' - Nonton Streaming | BACOLTV';
-  const description = 'Kumpulan video ' + categoryTitle + ' streaming online gratis di BACOLTV. ' + videos.length + ' video tersedia, kualitas HD.';
+  const pageTitle = categoryTitle + ' - Nonton Streaming | ONLYFLIX';
+  const description = 'Kumpulan video ' + categoryTitle + ' streaming online gratis di ONLYFLIX. ' + videos.length + ' video tersedia, kualitas HD.';
   const image = videos.length ? resolveThumb(videos[0].thumbnail) : DEFAULT_IMAGE;
   const canonicalUrl = SITE_URL + '/category/' + slug;
 
