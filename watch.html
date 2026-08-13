@@ -54,14 +54,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .pm-player{width:100%;aspect-ratio:16/9;background:#000;position:relative;}
 .pm-player video{width:100%;height:100%;display:block;object-fit:contain;background:#000;}
 
-/* Fluid Player integration: pastikan wrapper-nya ngisi penuh kotak .pm-player,
-   dan warna aksen kontrolnya ikut tema merah situs (bukan biru default). */
+/* Fluid Player integration: pastikan wrapper-nya ngisi penuh kotak .pm-player.
+   Warna aksen kontrol/ikon DIATUR LEWAT CONFIG `primaryColor` (lihat JS di
+   bawah), bukan CSS manual — override CSS class Fluid Player secara langsung
+   berisiko ngerusak bentuk ikon bawaan (kejadian nyata: ikon play sempat
+   rusak karena override border-color yang salah tebak strukturnya). */
 .pm-player .fluid_video_wrapper{width:100% !important;height:100% !important;}
-.pm-player .fluid_controls_container .fluid_button,
-.pm-player .fluid_slider_bar,
-.pm-player .fluid_slider_current_time{color:var(--accent) !important;}
-.pm-player .fluid_slider_bar{background-color:var(--accent) !important;}
-.pm-player .fluid_initial_play_button{border-color:var(--accent) transparent transparent transparent !important;}
 
 /* Base dipakai bersama oleh 3 lapisan penutup player: loading spinner, klik-iklan, dan blokir-adblock */
 .player-overlay{position:absolute;inset:0;}
@@ -637,10 +635,12 @@ function loadVideo(id, fallbackTitle) {
         player = fluidPlayer('main-player', {
           layoutControls: {
             fillToContainer: true,
-            primaryColor: '#E50914',
+            primaryColor: '#E50914', // satu-satunya cara resmi nge-tema warna ikon/kontrol, jangan override CSS class manual
             playButtonShowing: true,
             playbackRateEnabled: true,
-            keyboardControl: true
+            keyboardControl: true,
+            allowTheatre: false,           // buang tombol teater mode
+            miniPlayer: { enabled: false } // buang mini-player/PIP mode
           }
         });
       } else {
