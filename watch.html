@@ -3,13 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>bacoltv</title>
-<meta name="description" content="bacoltv — Free video streaming"/>
+<title>onlyflix</title>
+<meta name="description" content="onlyflix — Free video streaming"/>
 <meta name="theme-color" content="#141414"/>
-<link rel="icon" type="image/png" href="https://i.ibb.co.com/5xvnqQjj/1000165671.png"/>
-<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<link rel="icon" type="image/png" href="https://i.ibb.co.com/KjJTJ0pC/1000167963.png"/>
+<script src="https://cdn.fluidplayer.com/v3/current/fluidplayer.min.js"></script>
 <style>
 *{-webkit-tap-highlight-color:transparent;box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -25,7 +23,6 @@
   --wrap-max:520px; /* Default mobile — disamakan dengan category.html */
   --hdr-top:8px;
   --hdr-side:10px;
-  --plyr-color-main:#E50914;
 }
 body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
 
@@ -37,8 +34,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 #header-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;height:100%;text-decoration:none;}
 .logo{display:flex;align-items:center;gap:8px;}
-.logo-icon{width:24px;height:24px;}
-.logo-icon img{width:100%;height:100%;object-fit:contain;}
+.logo-icon{height:20px;width:auto;display:flex;align-items:center;}
+.logo-icon img{height:100%;width:auto;object-fit:contain;display:block;}
 .logo-text{font-size:15px;font-weight:900;letter-spacing:0.06em;color:var(--text);}
 
 .hdr-btn{position:relative;background:none;border:none;color:var(--text);opacity:0.85;cursor:pointer;display:flex;padding:4px;text-decoration:none;flex-shrink:0;}
@@ -57,10 +54,14 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .pm-player{width:100%;aspect-ratio:16/9;background:#000;position:relative;}
 .pm-player video{width:100%;height:100%;display:block;object-fit:contain;background:#000;}
 
-/* Plyr integration: make Plyr's wrapper fill the pm-player box exactly like the old native video did */
-.pm-player .plyr{width:100%;height:100%;border-radius:0;}
-.pm-player .plyr__video-wrapper{height:100%;background:#000;}
-.pm-player .plyr video{object-fit:contain;}
+/* Fluid Player integration: pastikan wrapper-nya ngisi penuh kotak .pm-player,
+   dan warna aksen kontrolnya ikut tema merah situs (bukan biru default). */
+.pm-player .fluid_video_wrapper{width:100% !important;height:100% !important;}
+.pm-player .fluid_controls_container .fluid_button,
+.pm-player .fluid_slider_bar,
+.pm-player .fluid_slider_current_time{color:var(--accent) !important;}
+.pm-player .fluid_slider_bar{background-color:var(--accent) !important;}
+.pm-player .fluid_initial_play_button{border-color:var(--accent) transparent transparent transparent !important;}
 
 /* Base dipakai bersama oleh 3 lapisan penutup player: loading spinner, klik-iklan, dan blokir-adblock */
 .player-overlay{position:absolute;inset:0;}
@@ -152,8 +153,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
     <a id="header-center" href="/" aria-label="Back to Home">
       <div class="logo">
-        <div class="logo-icon"><img src="https://i.ibb.co.com/5xvnqQjj/1000165671.png" alt="Logo"></div>
-        <span class="logo-text">BACOLTV</span>
+        <div class="logo-icon"><img src="https://i.ibb.co.com/KjJTJ0pC/1000167963.png" alt="Logo"></div>
       </div>
     </a>
 
@@ -203,7 +203,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
       <!-- SEO DESCRIPTION -->
       <div class="seo-desc">
-        Nonton streaming <b id="seo-title-inject">...</b> online gratis dengan kualitas terbaik. Nikmati koleksi hiburan tanpa batas kapan saja dan di mana saja hanya di BACOLTV.
+        Nonton streaming <b id="seo-title-inject">...</b> online gratis dengan kualitas terbaik. Nikmati koleksi hiburan tanpa batas kapan saja dan di mana saja hanya di ONLYFLIX.
       </div>
     </div>
 
@@ -228,7 +228,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 </div>
 
 <script>
-// ── CONFIG BACKEND BACOLTV ──
+// ── CONFIG BACKEND ONLYFLIX ──
 var API = 'https://vidoy-x.zalpro.workers.dev';
 var PROXY_WORKER = 'https://proxy-vidoy.zalpro.workers.dev';
 var API_KEY = 'hQwtIQTI22dJubmGhkKl';
@@ -486,32 +486,14 @@ runCheck();
 setInterval(runCheck, 4000);
 /* ═══════════════════════════════════ END DETEKSI ADBLOCK ═══════════════════════════════════ */
 
-// ── PLAYER (Plyr.js + hls.js) ──
+// ── PLAYER (Fluid Player, dengan HLS bawaan hls.js internal-nya) ──
 var videoEl = document.getElementById('main-player');
-
-// Init Plyr on the native <video> element. Plyr wraps the existing node
-// in place (it does not destroy/recreate it), so videoEl / hls.attachMedia
-// below keep working exactly like before — only the visible controls change.
-var player = new Plyr(videoEl, {
-  controls: ['play-large', 'play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'settings', 'pip', 'fullscreen'],
-  settings: ['speed'],
-  speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
-  clickToPlay: true,
-  keyboard: { focused: true, global: false },
-  tooltips: { controls: false, seek: true },
-  i18n: {
-    play: 'Play', pause: 'Pause', mute: 'Mute', unmute: 'Unmute',
-    settings: 'Pengaturan', speed: 'Kecepatan', normal: 'Normal',
-    enterFullscreen: 'Fullscreen', exitFullscreen: 'Keluar Fullscreen'
-  }
-});
+var player = null; // di-init sekali, setelah sumber video diketahui (lihat loadVideo())
 
 var playerLoader = document.getElementById('player-loader');
 videoEl.addEventListener('canplay', function() { playerLoader.classList.remove('show'); });
 videoEl.addEventListener('loadeddata', function() { playerLoader.classList.remove('show'); });
 videoEl.addEventListener('playing', function() { playerLoader.classList.remove('show'); });
-
-var hlsInstance = null;
 
 function setTitle(text) { 
   document.getElementById('video-title').textContent = text;
@@ -590,7 +572,7 @@ function loadRelatedVideos(currentVideoId) {
 
     var filtered = masterVideos.filter(function(v) { return String(v.id) !== String(currentVideoId); });
     filtered.sort(function() { return 0.5 - Math.random(); });
-    var recommendations = filtered.slice(0, 30);
+    var recommendations = filtered.slice(0, 15);
 
     var gridEl = document.getElementById('related-grid');
     gridEl.innerHTML = '';
@@ -634,22 +616,35 @@ function loadVideo(id, fallbackTitle) {
       };
       checkBookmarkStatus();
 
-      if (hlsInstance) hlsInstance.destroy();
       var isHls = (json.data.format === 'hls') || (!json.data.format && rawUrl.includes('.m3u8'));
 
-      if (isHls) {
-        if (Hls.isSupported()) {
-          hlsInstance = new Hls();
-          hlsInstance.loadSource(proxiedUrl);
-          hlsInstance.attachMedia(videoEl);
-          hlsInstance.on(Hls.Events.ERROR, function(e, data) {
-            if (data.fatal) playerLoader.classList.remove('show');
-          });
-        } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
-          videoEl.src = proxiedUrl;
-        }
+      // Pasang <source> dengan type yang benar SEBELUM init Fluid Player —
+      // ini pola resmi Fluid Player buat HLS (dia pakai hls.js bawaan sendiri
+      // begitu ketemu type="application/x-mpegURL", nggak perlu kita bikin
+      // instance Hls() manual lagi kayak sebelumnya).
+      videoEl.innerHTML = ''; // buang <source> lama kalau ada (jaga-jaga)
+      var sourceEl = document.createElement('source');
+      sourceEl.src = proxiedUrl;
+      sourceEl.type = isHls ? 'application/x-mpegURL' : 'video/mp4';
+      videoEl.appendChild(sourceEl);
+
+      // Fluid Player diinisialisasi SEKALI di sini (bukan di atas saat halaman
+      // baru dimuat) — karena butuh <source> yang benar sudah terpasang dulu.
+      // Wajar cuma sekali: 1 halaman /watch/:slug = 1 video, arsitekturnya
+      // full page reload tiap pindah video, bukan SPA yang ganti-ganti source
+      // di player yang sama.
+      if (!player) {
+        player = fluidPlayer('main-player', {
+          layoutControls: {
+            fillToContainer: true,
+            primaryColor: '#E50914',
+            playButtonShowing: true,
+            playbackRateEnabled: true,
+            keyboardControl: true
+          }
+        });
       } else {
-        videoEl.src = proxiedUrl;
+        videoEl.load(); // source berubah tanpa re-init (jaga-jaga kalau loadVideo terpanggil ulang)
       }
 
       loadRelatedVideos(id);
@@ -674,7 +669,7 @@ if (initial && initial.id) {
 // ── LOGIKA TOMBOL AKSI ──
 document.getElementById('btn-share').onclick = function() {
   var url = window.location.href;
-  var title = currentVideoData ? currentVideoData.title : 'BACOLTV Video';
+  var title = currentVideoData ? currentVideoData.title : 'ONLYFLIX Video';
   if (navigator.share) {
     navigator.share({ title: title, url: url }).catch(function(){});
   } else {
