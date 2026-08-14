@@ -641,6 +641,22 @@ function loadVideo(id, fallbackTitle) {
             keyboardControl: true,
             allowTheatre: false,           // buang tombol teater mode
             miniPlayer: { enabled: false } // buang mini-player/PIP mode
+          },
+          // Iklan VAST dari HilltopAds — dipasang sebagai pre-roll (tampil
+          // sekali sebelum video mulai). Struktur `vastOptions.adList` ini
+          // pola RESMI Fluid Player, sama dipakai semua network VAST
+          // (ExoClick, Adsterra-style, dst) — bukan kode khusus HilltopAds,
+          // karena VAST sendiri protokol XML standar terbuka.
+          vastOptions: {
+            adList: [
+              {
+                roll: 'preRoll',
+                vastTag: 'https://direct-league.com/dqmlFfz.dQGsNlvtZIG/Ue/qejmE9/uVZFUtl-kpPfTscNzbMqThcF2NN/jqUHtKNFzYMtxmNvz/YH2cOZQD'
+              }
+            ],
+            adText: 'Iklan',
+            skipButtonCaption: 'Lewati iklan dalam [seconds] detik',
+            skipButtonClickCaption: 'Lewati Iklan &raquo;'
           }
         });
       } else {
