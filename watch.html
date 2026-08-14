@@ -74,16 +74,18 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   background-color: var(--accent) !important;
 }
 
-/* ── 2. CUSTOM VOLUME SLIDER (KONSISTEN TEBAL) ── */
+/* ── 2. CUSTOM VOLUME SLIDER (KONSISTEN TEBAL & MERAH) ── */
 .pm-player .fluid_control_volume {
   height: 6px !important;
   border-radius: 3px !important;
+  background-color: rgba(255, 255, 255, 0.35) !important; /* Background abu-abu seragam dengan timeline */
 }
-.pm-player .fluid_control_volume_currentprogress {
+.pm-player .fluid_control_volume_currentpos {
   height: 6px !important;
   border-radius: 3px !important;
-  background-color: var(--accent) !important;
+  background-color: var(--accent) !important; /* Menjadikan isinya warna merah tebal */
 }
+
 
 /* ── 3. MERAPIKAN SUDUT BAWAH PLAYER CONTAINER ── */
 .pm-player .fluid_video_wrapper {
