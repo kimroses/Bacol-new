@@ -56,35 +56,53 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 /* ── 1. CUSTOM TIMELINE PROGRESS BAR (TEBAL & KAPSUL) ── */
 .pm-player .fluid_controls_progress_container {
-  height: 6px !important;
+  height: 10px !important;
   cursor: pointer;
 }
 .pm-player .fluid_controls_progress {
-  height: 6px !important;
+  height: 10px !important;
   border-radius: 3px !important;
 }
 .pm-player .fluid_controls_buffered {
-  height: 6px !important;
+  height: 10px !important;
   border-radius: 3px !important;
   background-color: rgba(255, 255, 255, 0.35) !important;
 }
 .pm-player .fluid_controls_currentprogress {
-  height: 6px !important;
+  height: 10px !important;
   border-radius: 3px !important;
   background-color: var(--accent) !important;
 }
 
 /* ── 2. CUSTOM VOLUME SLIDER (KONSISTEN TEBAL & MERAH) ── */
+/* ── 2. CUSTOM VOLUME SLIDER (BERSIH 2 WARNA, TANPA GARIS TIPIS) ── */
 .pm-player .fluid_control_volume {
   height: 6px !important;
   border-radius: 3px !important;
-  background-color: rgba(255, 255, 255, 0.35) !important; /* Background abu-abu seragam dengan timeline */
+  background-color: rgba(255, 255, 255, 0.2) !important; /* Latar dasar kapsul */
+  overflow: hidden !important;
+  position: relative !important;
+  border: none !important;
+  box-shadow: none !important;
 }
+
+/* Mematikan garis/bayangan hitam tipis internal bawaan Fluid Player */
+.pm-player .fluid_control_volume::before,
+.pm-player .fluid_control_volume::after {
+  display: none !important;
+}
+
+/* Warna merah pengisi volume */
 .pm-player .fluid_control_volume_currentpos {
-  height: 6px !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
   border-radius: 3px !important;
-  background-color: var(--accent) !important; /* Menjadikan isinya warna merah tebal */
+  background-color: var(--accent) !important; /* Merah Onlyflix */
+  border: none !important;
+  box-shadow: none !important;
 }
+
 
 
 /* ── 3. MERAPIKAN SUDUT BAWAH PLAYER CONTAINER ── */
