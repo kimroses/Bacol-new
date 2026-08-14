@@ -74,40 +74,19 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   background-color: var(--accent) !important;
 }
 
-/* ── 2. CUSTOM VOLUME SLIDER (100% BERSIH TANPA GARIS HITAM) ── */
+/* ── 2. VOLUME SLIDER ASLI (HANYA DITEBALKAN & DIWARNAI) ── */
 
-/* 1. Track Utama Volume (Kapsul Abu-abu Transparan) */
+/* Wadah aslinya: ditebalkan 6px */
 .pm-player .fluid_control_volume {
   height: 6px !important;
   border-radius: 3px !important;
-  background-color: rgba(255, 255, 255, 0.2) !important;
-  position: relative !important;
-  overflow: hidden !important;
-  border: none !important;
-  box-shadow: none !important;
 }
 
-/* 2. Matikan Garis Hitam Tipis 2px Bawaan Fluid Player */
-.pm-player .fluid_control_volume * {
-  height: 100% !important;
-  top: 0 !important;
-  border: none !important;
-  box-shadow: none !important;
-  background-color: transparent !important; /* Menghilangkan warna hitam garis tipis */
-}
-
-/* 3. Hanya Isi Volume Aktif yang Diberi Warna MERAH */
-.pm-player .fluid_control_volume_currentpos,
-.pm-player .fluid_control_volume_progress,
-.pm-player [class*="volume_current"],
-.pm-player [class*="volume_progress"],
-.pm-player [class*="volume_active"] {
-  background-color: var(--accent) !important; /* Merah Onlyflix */
-  height: 100% !important;
+/* Isi aslinya: ditebalkan 6px dan diubah jadi MERAH */
+.pm-player .fluid_control_volume_currentpos {
+  height: 6px !important;
   border-radius: 3px !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 0 !important;
+  background-color: var(--accent) !important;
 }
 
 /* ── 3. MERAPIKAN SUDUT BAWAH PLAYER CONTAINER ── */
