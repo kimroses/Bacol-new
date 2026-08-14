@@ -74,24 +74,15 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   background-color: var(--accent) !important;
 }
 
-/* ── 1. REL / WADAH VOLUME (Kapsul Abu-abu) ── */
 .pm-player .fluid_control_volume {
   height: 6px !important;
   border-radius: 3px !important;
-  background-color: rgba(255, 255, 255, 0.35) !important;
-  position: relative !important;
-  border: none !important;
+  cursor: pointer;
 }
-
-/* ── 2. ISI VOLUME (Paksa Jadi Merah) ── */
-.pm-player .fluid_control_volume_currentpos {
-  height: 100% !important;
-  background-color: var(--accent) !important; /* Paksa warna merah */
-  border-radius: 3px !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  border: none !important;
+/* Kalau itu beneran <input type="range">, ini cara aman nge-tema warnanya
+   tanpa nyentuh background/width yang dipakai buat sinkronisasi state. */
+.pm-player input[type="range"]{
+  accent-color: var(--accent);
 }
 
 /* Base dipakai bersama oleh 3 lapisan penutup player: loading spinner, klik-iklan, dan blokir-adblock */
