@@ -79,10 +79,14 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   border-radius: 3px !important;
   cursor: pointer;
 }
-/* Kalau itu beneran <input type="range">, ini cara aman nge-tema warnanya
-   tanpa nyentuh background/width yang dipakai buat sinkronisasi state. */
-.pm-player input[type="range"]{
-  accent-color: var(--accent);
+
+.pm-player .fluid_control_currentvolume {
+  height: 6px !important;
+  border-radius: 3px !important;
+}
+
+.pm-player .fluid_control_volume_currentpos {
+  top: -2.5px !important;
 }
 
 /* Base dipakai bersama oleh 3 lapisan penutup player: loading spinner, klik-iklan, dan blokir-adblock */
