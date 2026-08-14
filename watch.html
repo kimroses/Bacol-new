@@ -625,7 +625,7 @@ function loadVideo(id, fallbackTitle) {
       var finalTitle = json.data.title || fallbackTitle || 'Untitled';
       setTitle(finalTitle);
 
-      var proxiedUrl = PROXY_WORKER + '/' + rawUrl;
+      var proxiedUrl = PROXY_WORKER + '/?url=' + encodeURIComponent(rawUrl);
 
       // Simpan data untuk aksi tombol
       currentVideoData = {
