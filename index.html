@@ -114,19 +114,60 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .so-grid .poster-thumb, .co-grid .poster-thumb { width: 100% !important; height: 0 !important; padding-bottom: 145% !important; position: relative !important; overflow: hidden !important; border-radius: 10px !important; flex-shrink: 0 !important; }
 
 /* ── SCROLL TO TOP ── */
-.scroll-top-btn{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(12px);z-index:90;width:34px;height:34px;border-radius:50%;background:rgba(31,31,31,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s,bottom 0.25s;}
+.scroll-top-btn{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(12px);z-index:90;width:34px;height:34px;border-radius:50%;background:rgba(31,31,31,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s,bottom 0.2s;}
 .scroll-top-btn.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
 .scroll-top-btn.in-overlay{z-index:410;}
 
-/* ── AD SLOTS (JuicyAds) — hanya wrapper posisi, kode ads dibiarkan apa adanya ── */
-.ad-slot{position:fixed;left:50%;transform:translateX(-50%);width:300px;max-width:calc(100% - 20px);z-index:80;display:flex;justify-content:center;}
+/* ── AD SLOTS (JuicyAds) — hanya wrapper posisi. UKURAN TIDAK DIKUNCI:
+   width/height mengikuti kode ads apa adanya, jadi ganti size banner apapun
+   (300x100, 468x60, dll) otomatis pas tanpa perlu edit CSS lagi. ── */
+.ad-slot{position:fixed;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;align-items:center;gap:6px;}
 .ad-slot.hidden{display:none;}
 .ad-top-sticky{top:calc(var(--hdr-top) + 48px + 8px);}
 .ad-bottom-sticky{bottom:8px;}
-.ad-close{position:absolute;top:-9px;right:-9px;width:22px;height:22px;border-radius:50%;background:#1f1f1f;border:1px solid var(--border);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,0.5);padding:0;}
-.ad-close svg{width:11px;height:11px;}
+.ad-slot-code{display:flex;justify-content:center;}
+/* Tombol close ditaruh SEBAGAI BARIS TERPISAH DI ATAS banner (bukan menimpa/menutupi banner) */
+.ad-close{cursor:pointer;height:26px;width:auto;display:block;}
 
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;z-index:99999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;transition:opacity 0.6s ease,visibility 0.6s ease;}
+#splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
+.splash-icon{position:relative;z-index:1;height:56px;width:auto;}
+/* Glow LAPISAN TERPISAH (bukan drop-shadow yang ngikutin alpha-channel gambar
+   logo — itu bikin efeknya nggak konsisten/kadang nyaris nggak kelihatan
+   tergantung isi file PNG-nya). Lingkaran radial-gradient blur di belakang
+   logo ini dijamin selalu tampil sebagai glow merah, nggak peduli logo-nya
+   transparan/kotak solid/apapun bentuknya. */
+.splash-icon::before{
+  content:'';
+  position:absolute;
+  left:50%; top:50%;
+  width:320px; height:320px;
+  transform:translate(-50%,-50%) scale(0.9);
+  background:radial-gradient(circle,
+    rgba(229,9,20,0.75) 0%,
+    rgba(229,9,20,0.5) 20%,
+    rgba(229,9,20,0.28) 38%,
+    rgba(229,9,20,0.12) 55%,
+    rgba(229,9,20,0.04) 72%,
+    rgba(229,9,20,0) 100%);
+  filter:blur(8px);
+  z-index:-1;
+  pointer-events:none;
+  animation:splashGlowPulse 1.8s ease-in-out infinite;
+}
+.splash-icon img{position:relative;z-index:1;height:100%;width:auto;object-fit:contain;display:block;}
+.splash-text{position:relative;z-index:1;margin-top:22px;font-size:21px;font-weight:900;letter-spacing:0.35em;padding-left:0.35em;color:#fff;opacity:0;animation:splashTextFade 0.8s ease 0.15s forwards;}
+@keyframes splashGlowPulse{
+  0%,100%{opacity:0.75;transform:translate(-50%,-50%) scale(0.85);}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.2);}
+}
+@keyframes splashTextFade{
+  from{opacity:0;transform:translateY(6px);}
+  to{opacity:1;transform:translateY(0);}
+}
 
 /* ── RESPONSIVE MEDIA QUERIES (kolom grid disamakan dengan category.html/watch.html: 5→6→7) ── */
 @media (min-width:700px){
@@ -150,6 +191,10 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 </head>
 <body>
 
+<div id="splash">
+  <div class="splash-icon"><img src="https://i.ibb.co.com/KjJTJ0pC/1000167963.png" alt="Logo"></div>
+</div>
+  
 <!-- GLOBAL HEADER -->
 <header id="site-header">
   <button class="hdr-btn" id="search-btn" aria-label="Search">
@@ -169,16 +214,16 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </button>
 </header>
 
-<!-- AD: STICKY TOP (300x100) -->
+<!-- AD: STICKY TOP (ukuran mengikuti kode ads, tombol X di atas banner) -->
 <div class="ad-slot ad-top-sticky" id="ad-top-sticky">
-  <button class="ad-close" id="ad-top-sticky-close" aria-label="Tutup iklan">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-  </button>
-  <!-- JuicyAds v3.0 -->
-  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-  <ins id="1124717" data-width="300" data-height="100"></ins>
-  <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1124717});</script>
-  <!--JuicyAds END-->
+  <img class="ad-close" id="ad-top-sticky-close" src="https://i.ibb.co.com/d0h5fyC1/1000169357.webp" alt="Tutup iklan">
+  <div class="ad-slot-code">
+<!-- JuicyAds v3.0 -->
+<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+<ins id="1124762" data-width="468" data-height="60"></ins>
+<script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1124762});</script>
+<!--JuicyAds END-->
+  </div>
 </div>
 
 <div class="wrap">
@@ -201,16 +246,16 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </button>
 </div>
 
-<!-- AD: STICKY BOTTOM (300x100) -->
+<!-- AD: STICKY BOTTOM (ukuran mengikuti kode ads, tombol X di atas banner) -->
 <div class="ad-slot ad-bottom-sticky" id="ad-bottom-sticky">
-  <button class="ad-close" id="ad-bottom-sticky-close" aria-label="Tutup iklan">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-  </button>
+  <img class="ad-close" id="ad-bottom-sticky-close" src="https://i.ibb.co.com/d0h5fyC1/1000169357.webp" alt="Tutup iklan">
+  <div class="ad-slot-code">
 <!-- JuicyAds v3.0 -->
 <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
 <ins id="1124735" data-width="468" data-height="60"></ins>
 <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1124735});</script>
 <!--JuicyAds END-->
+  </div>
 </div>
 
 <!-- CATEGORY OVERLAY -->
@@ -355,6 +400,24 @@ function seededShuffle(arr, seed) {
     var t = a[i]; a[i] = a[j]; a[j] = t;
   }
   return a;
+}
+
+// Splash dijamin tampil MINIMAL 1.8 detik (persis 1 siklus animasi glow-nya)
+// walau data sudah selesai dimuat lebih cepat dari itu (misal lagi kepakai
+// cache katalog yang bisa resolve dalam hitungan puluhan milidetik) — supaya
+// efek pulse merahnya kelihatan jelas, bukan kepotong duluan.
+var SPLASH_MIN_MS = 1800;
+var SPLASH_MAX_MS = 3500; // batas atas jaga-jaga kalau loading lambat/gagal
+var splashStart = Date.now();
+var splashTimer = setTimeout(hideSplash, SPLASH_MAX_MS);
+function hideSplash() {
+  clearTimeout(splashTimer);
+  var elapsed = Date.now() - splashStart;
+  var remaining = Math.max(0, SPLASH_MIN_MS - elapsed);
+  setTimeout(function() {
+    var el = document.getElementById('splash');
+    if (el) el.classList.add('hide');
+  }, remaining);
 }
 
 // ── BOOKMARKS ──
@@ -626,7 +689,7 @@ function initApp() {
     masterVideos = data.videos || [];
     if (!masterVideos.length) {
       rowsEl.innerHTML = '<div class="row-loading" style="padding:40px 16px;text-align:center;">Belum ada video.</div>';
-      return;
+      hideSplash(); return;
     }
     var currentSeed = sessionSeed();
     var trending = seededShuffle(masterVideos, currentSeed).slice(0, ROW_SIZE);
@@ -645,6 +708,7 @@ function initApp() {
       if (!vids.length) return;
       rowsEl.appendChild(buildRow(fld.title, shuffle(vids.slice()).slice(0, ROW_SIZE), categoryHref(fld)));
     });
+    hideSplash();
   });
 }
 
@@ -667,24 +731,33 @@ scrollTopCo.onclick = function() { coScroll.scrollTo({ top: 0, behavior: 'smooth
 
 // ── AD SLOTS: close (X) buka direct link lalu sembunyikan banner, hanya untuk sesi ini ──
 var AD_DIRECT_LINK = 'https://dependedunmoved.com/iakcem4gf?key=46bd07e3392cad07ff14bcda337ad3fe';
+var adTopSticky = document.getElementById('ad-top-sticky');
+var adBottomSticky = document.getElementById('ad-bottom-sticky');
+
 function closeAdSlot(slotEl) {
   window.open(AD_DIRECT_LINK, '_blank'); // dipanggil duluan di dalam click handler biar tidak kena popup blocker
   slotEl.classList.add('hidden');
   updateScrollTopOffset();
 }
-var adBottomSticky = document.getElementById('ad-bottom-sticky');
-document.getElementById('ad-top-sticky-close').onclick = function() {
-  closeAdSlot(document.getElementById('ad-top-sticky'));
-};
-document.getElementById('ad-bottom-sticky-close').onclick = function() {
-  closeAdSlot(adBottomSticky);
-};
+document.getElementById('ad-top-sticky-close').onclick = function() { closeAdSlot(adTopSticky); };
+document.getElementById('ad-bottom-sticky-close').onclick = function() { closeAdSlot(adBottomSticky); };
 
-// Tombol scroll-up (^) idealnya duduk DI ATAS banner sticky footer, bukan ketiban.
-// Turun balik ke posisi default begitu banner footer di-close.
+// Tombol scroll-up (^) otomatis duduk DI ATAS banner sticky footer berapa pun
+// tingginya (dibaca langsung dari offsetHeight elemen ad, bukan angka tetap) —
+// jadi kalau ukuran banner diganti kapan pun, posisinya ikut menyesuaikan sendiri.
 function updateScrollTopOffset() {
   var adVisible = adBottomSticky && !adBottomSticky.classList.contains('hidden');
-  scrollTopHome.style.bottom = adVisible ? '126px' : '16px';
+  if (adVisible) {
+    var gap = 10, bottomOffset = 8;
+    scrollTopHome.style.bottom = (bottomOffset + adBottomSticky.offsetHeight + gap) + 'px';
+  } else {
+    scrollTopHome.style.bottom = '16px';
+  }
+}
+if (window.ResizeObserver && adBottomSticky) {
+  new ResizeObserver(updateScrollTopOffset).observe(adBottomSticky);
+} else {
+  window.addEventListener('resize', updateScrollTopOffset);
 }
 updateScrollTopOffset();
 
