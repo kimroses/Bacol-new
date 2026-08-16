@@ -114,9 +114,17 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .so-grid .poster-thumb, .co-grid .poster-thumb { width: 100% !important; height: 0 !important; padding-bottom: 145% !important; position: relative !important; overflow: hidden !important; border-radius: 10px !important; flex-shrink: 0 !important; }
 
 /* ── SCROLL TO TOP ── */
-.scroll-top-btn{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(12px);z-index:70;width:34px;height:34px;border-radius:50%;background:rgba(31,31,31,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;}
+.scroll-top-btn{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(12px);z-index:90;width:34px;height:34px;border-radius:50%;background:rgba(31,31,31,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s,bottom 0.25s;}
 .scroll-top-btn.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
 .scroll-top-btn.in-overlay{z-index:410;}
+
+/* ── AD SLOTS (JuicyAds) — hanya wrapper posisi, kode ads dibiarkan apa adanya ── */
+.ad-slot{position:fixed;left:50%;transform:translateX(-50%);width:300px;max-width:calc(100% - 20px);z-index:80;display:flex;justify-content:center;}
+.ad-slot.hidden{display:none;}
+.ad-top-sticky{top:calc(var(--hdr-top) + 48px + 8px);}
+.ad-bottom-sticky{bottom:8px;}
+.ad-close{position:absolute;top:-9px;right:-9px;width:22px;height:22px;border-radius:50%;background:#1f1f1f;border:1px solid var(--border);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,0.5);padding:0;}
+.ad-close svg{width:11px;height:11px;}
 
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -161,6 +169,18 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </button>
 </header>
 
+<!-- AD: STICKY TOP (300x100) -->
+<div class="ad-slot ad-top-sticky" id="ad-top-sticky">
+  <button class="ad-close" id="ad-top-sticky-close" aria-label="Tutup iklan">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <!-- JuicyAds v3.0 -->
+  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1124717" data-width="300" data-height="100"></ins>
+  <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1124717});</script>
+  <!--JuicyAds END-->
+</div>
+
 <div class="wrap">
   <div class="hero" id="hero">
     <div class="hero-skel" id="hero-skel"></div>
@@ -179,6 +199,18 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   <button class="scroll-top-btn" id="scroll-top-home" aria-label="Scroll to top">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
   </button>
+</div>
+
+<!-- AD: STICKY BOTTOM (300x100) -->
+<div class="ad-slot ad-bottom-sticky" id="ad-bottom-sticky">
+  <button class="ad-close" id="ad-bottom-sticky-close" aria-label="Tutup iklan">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <!-- JuicyAds v3.0 -->
+  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1124717-b" data-width="300" data-height="100"></ins>
+  <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1124717});</script>
+  <!--JuicyAds END-->
 </div>
 
 <!-- CATEGORY OVERLAY -->
@@ -632,6 +664,29 @@ coScroll.addEventListener('scroll', function() {
   }
 }, { passive: true });
 scrollTopCo.onclick = function() { coScroll.scrollTo({ top: 0, behavior: 'smooth' }); };
+
+// ── AD SLOTS: close (X) buka direct link lalu sembunyikan banner, hanya untuk sesi ini ──
+var AD_DIRECT_LINK = 'https://dependedunmoved.com/iakcem4gf?key=46bd07e3392cad07ff14bcda337ad3fe';
+function closeAdSlot(slotEl) {
+  window.open(AD_DIRECT_LINK, '_blank'); // dipanggil duluan di dalam click handler biar tidak kena popup blocker
+  slotEl.classList.add('hidden');
+  updateScrollTopOffset();
+}
+var adBottomSticky = document.getElementById('ad-bottom-sticky');
+document.getElementById('ad-top-sticky-close').onclick = function() {
+  closeAdSlot(document.getElementById('ad-top-sticky'));
+};
+document.getElementById('ad-bottom-sticky-close').onclick = function() {
+  closeAdSlot(adBottomSticky);
+};
+
+// Tombol scroll-up (^) idealnya duduk DI ATAS banner sticky footer, bukan ketiban.
+// Turun balik ke posisi default begitu banner footer di-close.
+function updateScrollTopOffset() {
+  var adVisible = adBottomSticky && !adBottomSticky.classList.contains('hidden');
+  scrollTopHome.style.bottom = adVisible ? '126px' : '16px';
+}
+updateScrollTopOffset();
 
 initApp();
 </script>
