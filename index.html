@@ -180,10 +180,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 </head>
 <body>
 
+<!-- SPLASH SCREEN DIMATIKAN SEMENTARA (tanggal kamu matiin, opsional) — hapus <!-- dan --> di bawah buat aktifkan lagi
 <div id="splash">
   <div class="splash-icon"><img src="https://i.ibb.co.com/KjJTJ0pC/1000167963.png" alt="Logo"></div>
 </div>
-
+-->
+  
 <!-- GLOBAL HEADER -->
 <header id="site-header">
   <button class="hdr-btn" id="search-btn" aria-label="Search">
@@ -371,11 +373,14 @@ function seededShuffle(arr, seed) {
 // walau data sudah selesai dimuat lebih cepat dari itu (misal lagi kepakai
 // cache katalog yang bisa resolve dalam hitungan puluhan milidetik) — supaya
 // efek pulse merahnya kelihatan jelas, bukan kepotong duluan.
+
+/* === SPLASH SCREEN DIMATIKAN SEMENTARA — hapus /* dan */ di bawah buat aktifkan lagi
 var SPLASH_MIN_MS = 1800;
 var SPLASH_MAX_MS = 3500; // batas atas jaga-jaga kalau loading lambat/gagal
 var splashStart = Date.now();
 var splashTimer = setTimeout(hideSplash, SPLASH_MAX_MS);
 function hideSplash() {
+  return; // SPLASH DIMATIKAN SEMENTARA — hapus baris "return;" ini buat aktifkan lagi
   clearTimeout(splashTimer);
   var elapsed = Date.now() - splashStart;
   var remaining = Math.max(0, SPLASH_MIN_MS - elapsed);
@@ -384,6 +389,7 @@ function hideSplash() {
     if (el) el.classList.add('hide');
   }, remaining);
 }
+=== */
 
 // ── BOOKMARKS ──
 var BOOKMARK_KEY = 'bt_bookmarks';
