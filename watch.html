@@ -114,8 +114,24 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .action-btn:active,.action-btn.active{color:var(--accent);transform:scale(0.92);}
 .action-btn svg{width:18px;height:18px;}
 
-.seo-desc{margin:0 14px 14px;font-size:11px;color:var(--text2);line-height:1.4;}
+.seo-desc-wrap{margin:0 14px 14px;}
+.seo-toggle{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--text2);font-size:11px;font-weight:700;padding:6px 0;cursor:pointer;text-transform:uppercase;letter-spacing:0.03em;}
+.seo-toggle svg{transition:transform 0.2s;flex-shrink:0;}
+.seo-toggle.open svg{transform:rotate(180deg);}
+.seo-desc{font-size:11px;color:var(--text2);line-height:1.4;padding-top:4px;display:none;}
+.seo-desc.open{display:block;}
 .seo-desc b{color:var(--text);font-weight:700;}
+
+/* ── AD SLOTS (JuicyAds) — hanya wrapper posisi, kode ads dibiarkan apa adanya ── */
+.ad-inline{display:flex;justify-content:center;width:100%;max-width:var(--wrap-max);margin:0 auto;}
+.ad-inline-top{margin-bottom:0;}
+.ad-inline-bottom{margin-top:0;}
+.ad-slot{position:fixed;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.ad-slot.hidden{display:none;}
+.ad-bottom-sticky{bottom:8px;}
+.ad-slot-code{display:flex;justify-content:center;}
+/* Tombol close ditaruh SEBAGAI BARIS TERPISAH DI ATAS banner (bukan menimpa/menutupi banner) */
+.ad-close{cursor:pointer;height:13px;width:auto;display:block;}
 
 /* ── RELATED / RANDOM VIDEOS ── */
 .related-section { margin-top:20px; max-width:var(--wrap-max); margin-left:auto; margin-right:auto; }
@@ -195,6 +211,15 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </header>
 
   <div class="page-body">
+    <!-- AD: DI ATAS PLAYER, NEMPEL CARD (300x100) -->
+    <div class="ad-inline ad-inline-top">
+      <!-- JuicyAds v3.0 -->
+      <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+      <ins id="1124717" data-width="300" data-height="100"></ins>
+      <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1124717});</script>
+      <!--JuicyAds END-->
+    </div>
+
     <!-- PLAYER CARD CUSTOM (COMPACT) -->
     <div class="pm-card">
       <div class="pm-top">
@@ -232,10 +257,25 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
         </button>
       </div>
 
-      <!-- SEO DESCRIPTION -->
-      <div class="seo-desc">
-        Nonton streaming <b id="seo-title-inject">...</b> online gratis dengan kualitas terbaik. Nikmati koleksi hiburan tanpa batas kapan saja dan di mana saja hanya di ONLYFLIX.
+      <!-- SEO DESCRIPTION (collapsible, default hidden) -->
+      <div class="seo-desc-wrap">
+        <button class="seo-toggle" id="seo-toggle" aria-expanded="false">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>Deskripsi</span>
+        </button>
+        <div class="seo-desc" id="seo-desc-body">
+          Nonton streaming <b id="seo-title-inject">...</b> online gratis dengan kualitas terbaik. Nikmati koleksi hiburan tanpa batas kapan saja dan di mana saja hanya di ONLYFLIX.
+        </div>
       </div>
+    </div>
+
+    <!-- AD: DI BAWAH PLAYER, NEMPEL CARD (308x286) -->
+    <div class="ad-inline ad-inline-bottom">
+<!-- JuicyAds v3.0 -->
+<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+<ins id="1124732" data-width="308" data-height="286"></ins>
+<script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1124732});</script>
+<!--JuicyAds END-->
     </div>
 
     <!-- RELATED / RANDOM VIDEOS -->
@@ -248,6 +288,18 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
         <!-- Card dimuat via JS -->
       </div>
     </div>
+  </div>
+</div>
+
+<!-- AD: STICKY BOTTOM (ukuran mengikuti kode ads, tombol X di atas banner) -->
+<div class="ad-slot ad-bottom-sticky" id="ad-bottom-sticky">
+  <img class="ad-close" id="ad-bottom-sticky-close" src="https://i.ibb.co.com/d0h5fyC1/1000169357.webp" alt="Tutup iklan">
+  <div class="ad-slot-code">
+<!-- JuicyAds v3.0 -->
+<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+<ins id="1124718" data-width="300" data-height="50"></ins>
+<script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1124718});</script>
+<!--JuicyAds END-->
   </div>
 </div>
 
@@ -765,6 +817,22 @@ document.getElementById('btn-download').onclick = function() {
     return;
   }
   window.open(currentVideoData.downloadUrl, '_blank');
+};
+
+// ── SEO DESCRIPTION: collapsible, default hidden ──
+var seoToggle = document.getElementById('seo-toggle');
+var seoDescBody = document.getElementById('seo-desc-body');
+seoToggle.onclick = function() {
+  var open = seoDescBody.classList.toggle('open');
+  seoToggle.classList.toggle('open', open);
+  seoToggle.setAttribute('aria-expanded', String(open));
+};
+
+// ── AD SLOT: close (X) buka direct link lalu sembunyikan banner, hanya untuk sesi ini ──
+var AD_DIRECT_LINK = 'https://dependedunmoved.com/iakcem4gf?key=46bd07e3392cad07ff14bcda337ad3fe';
+document.getElementById('ad-bottom-sticky-close').onclick = function() {
+  window.open(AD_DIRECT_LINK, '_blank');
+  document.getElementById('ad-bottom-sticky').classList.add('hidden');
 };
 </script>
 </body>
