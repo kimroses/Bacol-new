@@ -47,6 +47,20 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 .page-body{padding:70px var(--gutter) 40px;}
 
+/* ── SCROLL TO TOP ── */
+.scroll-top-btn{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(12px);z-index:90;width:34px;height:34px;border-radius:50%;background:rgba(31,31,31,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s,bottom 0.2s;}
+.scroll-top-btn.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
+
+/* ── AD SLOTS (JuicyAds) — hanya wrapper posisi. UKURAN TIDAK DIKUNCI:
+   width/height mengikuti kode ads apa adanya. ── */
+.ad-slot{position:fixed;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.ad-slot.hidden{display:none;}
+.ad-top-sticky{top:calc(var(--hdr-top) + 48px + 8px);}
+.ad-bottom-sticky{bottom:8px;}
+.ad-slot-code{display:flex;justify-content:center;}
+/* Tombol close ditaruh SEBAGAI BARIS TERPISAH DI ATAS banner (bukan menimpa/menutupi banner) */
+.ad-close{cursor:pointer;height:13px;width:auto;display:block;}
+
 /* ── UNIVERSAL GRID RESET (Default HP: 3 Kolom) ── */
 /* .bo-grid (overlay bookmark) memakai style yang persis sama dengan #cat-grid */
 #cat-grid, .bo-grid {
@@ -178,8 +192,36 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
     </button>
   </header>
 
+  <!-- AD: STICKY TOP (ukuran mengikuti kode ads, tombol close di BAWAH banner) -->
+  <div class="ad-slot ad-top-sticky" id="ad-top-sticky">
+    <div class="ad-slot-code">
+      <!-- JuicyAds v3.0 -->
+      <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+      <ins id="1124717" data-width="300" data-height="100"></ins>
+      <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1124717});</script>
+      <!--JuicyAds END-->
+    </div>
+    <img class="ad-close" id="ad-top-sticky-close" src="https://i.ibb.co.com/d0h5fyC1/1000169357.webp" alt="Tutup iklan">
+  </div>
+
   <div class="page-body">
     <div id="cat-grid"></div>
+  </div>
+
+  <button class="scroll-top-btn" id="scroll-top-cat" aria-label="Scroll to top">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+</div>
+
+<!-- AD: STICKY BOTTOM (ukuran mengikuti kode ads, tombol X di atas banner) -->
+<div class="ad-slot ad-bottom-sticky" id="ad-bottom-sticky">
+  <img class="ad-close" id="ad-bottom-sticky-close" src="https://i.ibb.co.com/d0h5fyC1/1000169357.webp" alt="Tutup iklan">
+  <div class="ad-slot-code">
+<!-- JuicyAds v3.0 -->
+<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+<ins id="1124718" data-width="300" data-height="50"></ins>
+<script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1124718});</script>
+<!--JuicyAds END-->
   </div>
 </div>
 
@@ -394,6 +436,44 @@ document.getElementById('back-btn').onclick = function(e) {
     updateHeaderBadge();
   }
 })();
+
+// ── AD SLOTS: close (X) buka direct link lalu sembunyikan banner, hanya untuk sesi ini ──
+var AD_DIRECT_LINK = 'https://dependedunmoved.com/iakcem4gf?key=46bd07e3392cad07ff14bcda337ad3fe';
+var adBottomSticky = document.getElementById('ad-bottom-sticky');
+function closeAdSlot(slotEl) {
+  window.open(AD_DIRECT_LINK, '_blank');
+  slotEl.classList.add('hidden');
+  updateScrollTopOffset();
+}
+document.getElementById('ad-top-sticky-close').onclick = function() {
+  closeAdSlot(document.getElementById('ad-top-sticky'));
+};
+document.getElementById('ad-bottom-sticky-close').onclick = function() {
+  closeAdSlot(adBottomSticky);
+};
+
+// ── SCROLL TO TOP ── tombol (^) otomatis duduk di atas banner sticky footer,
+// tinggi dibaca langsung dari offsetHeight elemen ad (bukan angka tetap), jadi
+// otomatis menyesuaikan berapa pun ukuran banner yang dipasang ke depannya.
+var scrollTopCat = document.getElementById('scroll-top-cat');
+window.addEventListener('scroll', function() { scrollTopCat.classList.toggle('show', window.scrollY > 400); }, { passive: true });
+scrollTopCat.onclick = function() { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+
+function updateScrollTopOffset() {
+  var adVisible = adBottomSticky && !adBottomSticky.classList.contains('hidden');
+  if (adVisible) {
+    var gap = 10, bottomOffset = 8;
+    scrollTopCat.style.bottom = (bottomOffset + adBottomSticky.offsetHeight + gap) + 'px';
+  } else {
+    scrollTopCat.style.bottom = '16px';
+  }
+}
+if (window.ResizeObserver && adBottomSticky) {
+  new ResizeObserver(updateScrollTopOffset).observe(adBottomSticky);
+} else {
+  window.addEventListener('resize', updateScrollTopOffset);
+}
+updateScrollTopOffset();
 </script>
 
 </body>
