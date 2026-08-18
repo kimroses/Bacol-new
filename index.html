@@ -287,15 +287,14 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 <script>
 // ── CONFIG ──
-var API         = 'https://vidoy-x.zalpro.workers.dev';
+var API         = '/api';
 var ROOT_FOLDER = 'rxk071a6llo';
-var API_KEY     = 'hQwtIQTI22dJubmGhkKl';
 var ROW_SIZE    = 15;
 var THUMB_HOST  = 'https://xpvid.cc';
 var FALLBACK_THUMB = 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=500&auto=format&fit=crop';
 
 function fetchJSON(url) {
-  return fetch(url, { headers: { 'X-API-Key': API_KEY } })
+  return fetch(url)
     .then(function(r) { return r.json(); })
     .catch(function() { return null; });
 }
