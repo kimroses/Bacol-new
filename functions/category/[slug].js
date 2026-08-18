@@ -22,7 +22,7 @@
 
 import { extractIdFromSlug, buildCategorySlug, buildWatchSlug } from '../_lib/slug.js';
 
-const API = 'https://vidoy-x.zalpro.workers.dev';
+const API = 'https://onlyflix-api.sugiono.workers.dev';
 const SITE_URL = 'https://onlyflix.pages.dev'; // ganti ke domain asli kamu
 const DEFAULT_IMAGE = 'https://i.ibb.co.com/5xvnqQjj/1000165671.png';
 const THUMB_HOST = 'https://xpvid.cc';
