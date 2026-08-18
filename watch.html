@@ -670,7 +670,7 @@ function loadVideo(id, fallbackTitle) {
   playerLoader.classList.add('show');
   setTitle(fallbackTitle || 'Loading...');
 
-  fetch(API + '/video/' + id, { headers: { 'X-API-Key': API_KEY } })
+  fetch(API + '/video/' + id)
     .then(function(r) { return r.json(); })
     .then(function(json) {
       if (json.status !== 'success') {
