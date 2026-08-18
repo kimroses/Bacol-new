@@ -19,7 +19,7 @@
 // 3. Di index.html & watch.html: hapus var API_KEY, ganti var API jadi '/api',
 //    dan hapus header 'X-API-Key' dari semua fetch (lihat instruksi terpisah).
 
-const UPSTREAM = 'https://vidoy-x.zalpro.workers.dev';
+const UPSTREAM = 'https://onlyflix-api.sugiono.workers.dev';
 
 export async function onRequest(context) {
   try {
