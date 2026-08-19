@@ -236,7 +236,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
         <video id="main-player" playsinline controls></video>
         <div class="pm-loader" id="player-loader">
           <div class="spinner"></div>
-          <span id="player-loader-text">jika terus buffering server lagi gangguan - coba reload</span>
+          <span id="player-loader-text">Koneksi lambat, mohon tunggu...</span>
         </div>
         <!-- ANTI ADBLOCK OVERLAY -->
         <div class="player-overlay antiadblock-overlay" id="antiadblock-overlay">
@@ -583,14 +583,27 @@ function hidePlayerLoader() {
   clearTimeout(loaderTextTimer);
 }
 
+// Lacak posisi playback terakhir (belum dipakai untuk resume manual — cukup
+// buat referensi debugging kalau perlu nanti).
+var lastPlaybackTime = 0;
+videoEl.addEventListener('timeupdate', function() { lastPlaybackTime = videoEl.currentTime; });
+
+var hlsInstance = null; // di-set oleh modules.onAfterInitHls saat player HLS init
+
+videoEl.addEventListener('error', function() {
+  showPlayerLoader();
+});
+
 // Fallback native <video> events (tetap dipertahankan untuk kasus tanpa preroll)
-// Hanya trigger via event 'play' NATIVE (tap user / play() dipanggil) untuk
-// MENYALAKAN spinner — bukan otomatis nyala saat halaman load. Fire ini juga
-// terjadi ulang tiap kali source berganti (preRoll -> source utama), jadi
-// transisi ad-ke-video juga otomatis dapat spinner singkat.
-// 'playing' (frame benar-benar render) yang MEMATIKAN spinner.
+// 'play' MENYALAKAN spinner setiap kali ada attempt play (tap awal, transisi
+// preRoll->source, ataupun tap ulang manual).
 videoEl.addEventListener('play', showPlayerLoader);
 videoEl.addEventListener('playing', hidePlayerLoader);
+// 'waiting' fire kapan pun playback stall di TENGAH nonton (bukan cuma awal) —
+// misal koneksi putus sesaat. Tanpa ini, spinner cuma reaktif di awal load,
+// dan mid-playback stall jadi "macet diem" tanpa indikator sama sekali.
+videoEl.addEventListener('waiting', showPlayerLoader);
+
 
 function setTitle(text) { 
   document.getElementById('video-title').textContent = text;
@@ -738,6 +751,28 @@ function loadVideo(id, fallbackTitle) {
             adText: 'Iklan',
             skipButtonCaption: 'Lewati iklan dalam [seconds] detik',
             skipButtonClickCaption: 'Lewati Iklan &raquo;'
+          },
+          // Hook RESMI Fluid Player untuk akses langsung ke instance hls.js
+          // internal-nya, dipakai untuk pasang pola recovery RESMI dari hls.js
+          // sendiri (persis seperti dokumentasi resminya) — dieksekusi langsung
+          // saat error terjadi, tidak ditunda. Setelah startLoad()/recoverMediaError()
+          // dipanggil, hls.js SENDIRI yang ambil alih retry/backoff dari situ.
+          // Cuma efektif kalau source-nya HLS; untuk mp4 progressive, hook ini
+          // otomatis nggak pernah dipanggil Fluid Player.
+          modules: {
+            onAfterInitHls: function(hls) {
+              hlsInstance = hls;
+              hls.on('hlsError', function(event, data) {
+                if (!data.fatal) return; // non-fatal: hls.js sudah retry sendiri
+                if (data.type === 'networkError') {
+                  hls.startLoad();
+                } else if (data.type === 'mediaError') {
+                  hls.recoverMediaError();
+                } else {
+                  hls.destroy();
+                }
+              });
+            }
           }
         });
 
