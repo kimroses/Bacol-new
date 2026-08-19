@@ -228,7 +228,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
     <div class="pm-card">
       <div class="pm-player">
         <video id="main-player" playsinline controls></video>
-        <div class="player-overlay pm-loader show" id="player-loader">
+        <div class="player-overlay pm-loader" id="player-loader">
           <div class="spinner"></div>
           <span id="player-loader-text">jika terus buffering server lagi gangguan - coba reload</span>
         </div>
@@ -578,8 +578,12 @@ function hidePlayerLoader() {
 }
 
 // Fallback native <video> events (tetap dipertahankan untuk kasus tanpa preroll)
-videoEl.addEventListener('canplay', hidePlayerLoader);
-videoEl.addEventListener('loadeddata', hidePlayerLoader);
+// Hanya trigger via event 'play' NATIVE (tap user / play() dipanggil) untuk
+// MENYALAKAN spinner — bukan otomatis nyala saat halaman load. Fire ini juga
+// terjadi ulang tiap kali source berganti (preRoll -> source utama), jadi
+// transisi ad-ke-video juga otomatis dapat spinner singkat.
+// 'playing' (frame benar-benar render) yang MEMATIKAN spinner.
+videoEl.addEventListener('play', showPlayerLoader);
 videoEl.addEventListener('playing', hidePlayerLoader);
 
 function setTitle(text) { 
@@ -663,7 +667,10 @@ function loadRelatedVideos(currentVideoId) {
 }
 
 function loadVideo(id, fallbackTitle) {
-  showPlayerLoader();
+  // Sengaja TIDAK memanggil showPlayerLoader() di sini — fetch data video ini
+  // jalan otomatis di background begitu halaman load, sebelum user tap apapun.
+  // Spinner baru dinyalakan oleh event 'play' native (lihat listener di atas),
+  // yaitu persis saat user tap tombol play.
   setTitle(fallbackTitle || 'Loading...');
 
   fetch(API + '/video/' + id)
@@ -671,13 +678,11 @@ function loadVideo(id, fallbackTitle) {
     .then(function(json) {
       if (json.status !== 'success') {
         setTitle('Error loading video');
-        hidePlayerLoader();
         return;
       }
       var rawUrl = json.data.direct_url;
       if (!rawUrl) {
         setTitle('Error: Direct Link tidak ditemukan');
-        hidePlayerLoader();
         return;
       }
       var finalTitle = json.data.title || fallbackTitle || 'Untitled';
@@ -730,13 +735,13 @@ function loadVideo(id, fallbackTitle) {
           }
         });
 
-        // Hook resmi Fluid Player: fire persis saat ada visual pertama yang
-        // BENAR-BENAR mulai diputar — baik itu preRoll ad maupun video utama.
-        // Ini menutup celah blank hitam yang terjadi kalau loader cuma
-        // mengandalkan event native <video> (yang tidak menangkap fase
-        // fetch+parse VAST tag sebelum ad creative benar-benar ter-assign).
+        // Hook resmi Fluid Player: fire persis saat ada attempt play — baik
+        // untuk preRoll ad maupun video utama (termasuk transisi ad->video).
+        // Ini backup/redundant dari listener native videoEl 'play' di atas,
+        // memastikan spinner tetap nyala menutup celah blank walau Fluid Player
+        // internal sempat mengelola elemen secara terpisah dari <video> biasa.
         player.on('play', function(additionalInfo) {
-          hidePlayerLoader();
+          showPlayerLoader();
         });
       } else {
         videoEl.load();
@@ -746,7 +751,6 @@ function loadVideo(id, fallbackTitle) {
     })
     .catch(function() {
       setTitle('Network Server Error');
-      hidePlayerLoader();
     });
 }
 
