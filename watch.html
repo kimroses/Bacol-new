@@ -101,6 +101,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .pm-loader span{font-size:10px;color:var(--accent2);font-weight:700;text-align:center;padding:0 24px;display:none;}
 .pm-loader span.show-text{display:block;}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* Matikan spinner bawaan Fluid Player (muncul otomatis saat VAST ad loading) —
+   supaya nggak dobel sama spinner custom kita (.pm-loader) yang sudah dikontrol
+   sendiri timing-nya (nyala saat tap, mati saat playing, delay teks 7 detik). */
+.fluid_video_wrapper .vast_video_loading{display:none !important;}
+
 .antiadblock-overlay{z-index:8;background:rgba(0,0,0,0.94);display:none;align-items:center;justify-content:center;padding:20px;text-align:center;}
 .antiadblock-overlay.show{display:flex;}
 .antiadblock-icon{width:34px;height:34px;color:var(--accent2);margin-bottom:10px;}
