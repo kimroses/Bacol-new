@@ -49,8 +49,6 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 /* ── PLAYER CARD ── */
 .pm-card{width:100%;max-width:var(--wrap-max);margin:0 auto;background:var(--card);border-radius:18px;overflow:hidden;border:1px solid var(--border);box-shadow:0 25px 70px rgba(0,0,0,0.55);}
-.pm-top{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(0,0,0,0.3);gap:6px;}
-.pm-title{font-size:13px;font-weight:800;color:#fff;flex:1;margin:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pm-player{width:100%;aspect-ratio:16/9;background:#000;position:relative;}
 .pm-player video{width:100%;height:100%;display:block;object-fit:contain;background:#000;}
 
@@ -100,7 +98,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .pm-loader{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:1;visibility:visible;transition:opacity 0.2s,visibility 0.2s;z-index:5;}
 .pm-loader:not(.show){opacity:0;visibility:hidden;}
 .pm-loader .spinner{width:26px;height:26px;border:3px solid rgba(229,9,20,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
-.pm-loader span{font-size:10px;color:var(--accent2);font-weight:700;text-align:center;padding:0 24px;}
+.pm-loader span{font-size:10px;color:var(--accent2);font-weight:700;text-align:center;padding:0 24px;display:none;}
+.pm-loader span.show-text{display:block;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .antiadblock-overlay{z-index:8;background:rgba(0,0,0,0.94);display:none;align-items:center;justify-content:center;padding:20px;text-align:center;}
 .antiadblock-overlay.show{display:flex;}
@@ -108,24 +107,29 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .antiadblock-title{color:#fff;font-size:14px;font-weight:800;margin-bottom:6px;}
 .antiadblock-desc{color:var(--text2);font-size:11px;line-height:1.5;}
 
-/* ── ACTION BAR (CAPSULE) & SEO DESC ── */
-.pm-actions{display:flex;align-items:center;justify-content:space-around;margin:12px 14px;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;}
+/* ── TITLE ROW: pindah ke bawah player, left-align, tanpa background/border sendiri ── */
+.pm-title-row{padding:12px 14px 0;}
+.pm-title{font-size:13px;font-weight:800;color:#fff;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}
+
+/* ── ACTION BAR: langsung nempel di bawah title, center, icon-only, tanpa capsule ── */
+.pm-actions{display:flex;align-items:center;justify-content:center;gap:36px;margin:8px 14px 0;padding:6px 0;}
 .action-btn{background:none;border:none;color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;padding:4px;}
 .action-btn:active,.action-btn.active{color:var(--accent);transform:scale(0.92);}
 .action-btn svg{width:18px;height:18px;}
 
-.seo-desc-wrap{margin:0 14px 14px;}
-.seo-toggle{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--text2);font-size:11px;font-weight:700;padding:6px 0;cursor:pointer;text-transform:uppercase;letter-spacing:0.03em;}
+/* ── DESKRIPSI TOGGLE: icon-only, center ── */
+.seo-desc-wrap{margin:0 14px 4px;}
+.seo-toggle{display:flex;width:100%;align-items:center;justify-content:center;background:none;border:none;color:var(--text2);padding:2px 0;cursor:pointer;}
 .seo-toggle svg{transition:transform 0.2s;flex-shrink:0;}
 .seo-toggle.open svg{transform:rotate(180deg);}
-.seo-desc{font-size:11px;color:var(--text2);line-height:1.4;padding-top:4px;display:none;}
+.seo-desc{font-size:11px;color:var(--text2);line-height:1.4;padding-top:4px;text-align:left;display:none;}
 .seo-desc.open{display:block;}
 .seo-desc b{color:var(--text);font-weight:700;}
 
 /* ── AD SLOTS (JuicyAds) — hanya wrapper posisi, kode ads dibiarkan apa adanya ── */
 .ad-inline{display:flex;justify-content:center;width:100%;max-width:var(--wrap-max);margin:0 auto;}
-.ad-inline-top{margin-bottom:0;}
-.ad-inline-bottom{margin-top:0;}
+.ad-inline-top{margin-bottom:12px;}
+.ad-inline-bottom{margin-top:12px;}
 .ad-slot{position:fixed;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;align-items:center;gap:6px;}
 .ad-slot.hidden{display:none;}
 .ad-bottom-sticky{bottom:8px;}
@@ -222,14 +226,11 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
     <!-- PLAYER CARD CUSTOM (COMPACT) -->
     <div class="pm-card">
-      <div class="pm-top">
-        <span class="pm-title" id="video-title">Loading...</span>
-      </div>
       <div class="pm-player">
         <video id="main-player" playsinline controls></video>
         <div class="player-overlay pm-loader show" id="player-loader">
           <div class="spinner"></div>
-          <span>jika terus buffering server lagi gangguan - coba reload</span>
+          <span id="player-loader-text">jika terus buffering server lagi gangguan - coba reload</span>
         </div>
         <!-- ANTI ADBLOCK OVERLAY -->
         <div class="player-overlay antiadblock-overlay" id="antiadblock-overlay">
@@ -240,8 +241,13 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
           </div>
         </div>
       </div>
-      
-      <!-- ACTION BAR CAPSULE -->
+
+      <!-- TITLE ROW: di bawah player, left-align, 1 baris -->
+      <div class="pm-title-row">
+        <span class="pm-title" id="video-title">Loading...</span>
+      </div>
+
+      <!-- ACTION BAR: langsung di bawah title, center, icon-only -->
       <div class="pm-actions">
         <!-- Share -->
         <button class="action-btn" id="btn-share" aria-label="Share">
@@ -251,17 +257,16 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
         <button class="action-btn" id="btn-bookmark" aria-label="Bookmark">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         </button>
-        <!-- Download -->
-        <button class="action-btn" id="btn-download" aria-label="Download">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <!-- Like (placeholder, belum ada fungsi) -->
+        <button class="action-btn" id="btn-like" aria-label="Like">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         </button>
       </div>
 
-      <!-- SEO DESCRIPTION (collapsible, default hidden) -->
+      <!-- SEO DESCRIPTION (collapsible, default hidden, toggle icon-only) -->
       <div class="seo-desc-wrap">
-        <button class="seo-toggle" id="seo-toggle" aria-expanded="false">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-          <span>Deskripsi</span>
+        <button class="seo-toggle" id="seo-toggle" aria-expanded="false" aria-label="Deskripsi">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="seo-desc" id="seo-desc-body">
           Nonton streaming <b id="seo-title-inject">...</b> online gratis dengan kualitas terbaik. Nikmati koleksi hiburan tanpa batas kapan saja dan di mana saja hanya di ONLYFLIX.
@@ -448,7 +453,6 @@ function renderBookmarkGrid() {
     return;
   }
   var frag = document.createDocumentFragment();
-  // showBookmarkBtn=true -> tampilkan ikon bookmark aktif di pojok kartu (khusus overlay ini)
   list.forEach(function(v) { frag.appendChild(makePoster(v)); });
   boGridEl.appendChild(frag);
 }
@@ -481,16 +485,10 @@ window.addEventListener('popstate', function() {
 });
 
 /* ══════════════════════════════════════════════════════════════════
-   DETEKSI ADBLOCK — semua unit iklan sudah dihapus dari watch.html,
-   tapi deteksi ini tetap aktif sesuai permintaan. Dual-check (script-load
-   test + bait-div test), butuh 2x konfirmasi berturut-turut sebelum
-   overlay muncul/hilang biar tidak kedap-kedip kalau salah satu metode
-   false-positive sesaat.
+   DETEKSI ADBLOCK — dual-check (script-load test + bait-div test),
+   butuh 2x konfirmasi berturut-turut sebelum overlay muncul/hilang
+   biar tidak kedap-kedip kalau salah satu metode false-positive sesaat.
    ══════════════════════════════════════════════════════════════════ */
-
-// URL script iklan asli dipakai murni sebagai "umpan" tes — kalau browser
-// memblokir permintaan ke URL ini, berarti adblock aktif. Bukan menampilkan
-// iklan apapun, cuma dipakai buat deteksi.
 var ADBLOCK_TEST_SCRIPT_SRC = 'https://dependedunmoved.com/065169dd18b734cf3df238a49c4742b8/invoke.js';
 
 var antiAdblockOverlay = document.getElementById('antiadblock-overlay');
@@ -541,31 +539,18 @@ function detectAdBlock(callback) {
 
 function showOverlay() {
   antiAdblockOverlay.classList.add('show');
-  if (typeof videoEl !== 'undefined' && videoEl && !videoEl.paused) videoEl.pause();
 }
 function hideOverlay() {
   antiAdblockOverlay.classList.remove('show');
 }
 
-var BLOCK_CONFIRMATIONS_NEEDED = 2;
-var CLEAR_CONFIRMATIONS_NEEDED = 2;
-var consecutiveBlocked = 0;
-var consecutiveClear = 0;
-function runCheck() {
-  detectAdBlock(function(blocked) {
-    if (blocked) {
-      consecutiveClear = 0;
-      consecutiveBlocked++;
-      if (consecutiveBlocked >= BLOCK_CONFIRMATIONS_NEEDED) showOverlay();
-    } else {
-      consecutiveBlocked = 0;
-      consecutiveClear++;
-      if (consecutiveClear >= CLEAR_CONFIRMATIONS_NEEDED) hideOverlay();
-    }
-  });
-}
-runCheck();
-setInterval(runCheck, 4000);
+// Pre-play check SEKALI SAJA saat halaman load — bukan interval berulang.
+// Kalau lolos, overlay ini tidak akan pernah muncul lagi sepanjang sesi nonton
+// (tidak ada lagi re-check yang bisa menginterupsi/pause video yang sedang jalan).
+detectAdBlock(function(blocked) {
+  if (blocked) showOverlay();
+  else hideOverlay();
+});
 /* ═══════════════════════════════════ END DETEKSI ADBLOCK ═══════════════════════════════════ */
 
 // ── PLAYER (Fluid Player, dengan HLS bawaan hls.js internal-nya) ──
@@ -573,9 +558,29 @@ var videoEl = document.getElementById('main-player');
 var player = null; // di-init sekali, setelah sumber video diketahui (lihat loadVideo())
 
 var playerLoader = document.getElementById('player-loader');
-videoEl.addEventListener('canplay', function() { playerLoader.classList.remove('show'); });
-videoEl.addEventListener('loadeddata', function() { playerLoader.classList.remove('show'); });
-videoEl.addEventListener('playing', function() { playerLoader.classList.remove('show'); });
+var playerLoaderText = document.getElementById('player-loader-text');
+var loaderTextTimer = null;
+
+// Loader ditampilkan polos (spinner saja) dulu — teks "buffering lama" baru
+// muncul kalau lewat 7 detik BELUM ada visual (ad ataupun video) yang render.
+// Dipanggil bareng playerLoader.classList.add('show') di awal loadVideo().
+function showPlayerLoader() {
+  playerLoader.classList.add('show');
+  playerLoaderText.classList.remove('show-text');
+  clearTimeout(loaderTextTimer);
+  loaderTextTimer = setTimeout(function() {
+    playerLoaderText.classList.add('show-text');
+  }, 7000);
+}
+function hidePlayerLoader() {
+  playerLoader.classList.remove('show');
+  clearTimeout(loaderTextTimer);
+}
+
+// Fallback native <video> events (tetap dipertahankan untuk kasus tanpa preroll)
+videoEl.addEventListener('canplay', hidePlayerLoader);
+videoEl.addEventListener('loadeddata', hidePlayerLoader);
+videoEl.addEventListener('playing', hidePlayerLoader);
 
 function setTitle(text) { 
   document.getElementById('video-title').textContent = text;
@@ -584,9 +589,6 @@ function setTitle(text) {
 }
 
 // Render satu kartu poster. Dipakai untuk related videos DAN overlay bookmark.
-// Tombol bookmark SELALU tampil di tiap kartu (konsisten dengan index.html &
-// category.html) — statusnya (aktif/tidak) mengikuti apakah video itu sudah
-// ada di daftar bookmark, bukan tergantung dari mana kartu ini dipanggil.
 function makePoster(v) {
   var title = v.title || 'Untitled';
   var thumb = resolveThumb(v);
@@ -599,7 +601,6 @@ function makePoster(v) {
   var th = document.createElement('div');
   th.className = 'poster-thumb';
 
-  // placeholder ikon play, hilang begitu thumbnail asli selesai dimuat
   var ph = document.createElement('div');
   ph.className = 'pph';
   th.appendChild(ph);
@@ -637,16 +638,11 @@ function makePoster(v) {
   return el;
 }
 
-// Related/Random Videos — pakai cache katalog terpusat (sama dengan index.html),
-// jadi kalau user sudah pernah buka homepage atau video lain dalam sesi ini,
-// bagian ini langsung tampil tanpa fetch ulang sama sekali.
+// Related/Random Videos — pakai cache katalog terpusat (sama dengan index.html)
 function loadRelatedVideos(currentVideoId) {
   getCatalogData().then(function(data) {
     var masterVideos = data.videos || [];
 
-    // Simpan ke videoLibraryCache + samakan thumbnail video yang sedang diputar
-    // dengan versi listing (perbaikan bug: bookmark dari tombol player sebelumnya
-    // pakai thumbnail dari /video/:id yang ada ikon play permanen di gambarnya)
     masterVideos.forEach(function(v) { videoLibraryCache[v.id] = v; });
     if (currentVideoData && String(currentVideoData.id) === String(currentVideoId) && videoLibraryCache[currentVideoId]) {
       currentVideoData.thumbnail = videoLibraryCache[currentVideoId].thumbnail;
@@ -667,7 +663,7 @@ function loadRelatedVideos(currentVideoId) {
 }
 
 function loadVideo(id, fallbackTitle) {
-  playerLoader.classList.add('show');
+  showPlayerLoader();
   setTitle(fallbackTitle || 'Loading...');
 
   fetch(API + '/video/' + id)
@@ -675,13 +671,13 @@ function loadVideo(id, fallbackTitle) {
     .then(function(json) {
       if (json.status !== 'success') {
         setTitle('Error loading video');
-        playerLoader.classList.remove('show');
+        hidePlayerLoader();
         return;
       }
       var rawUrl = json.data.direct_url;
       if (!rawUrl) {
         setTitle('Error: Direct Link tidak ditemukan');
-        playerLoader.classList.remove('show');
+        hidePlayerLoader();
         return;
       }
       var finalTitle = json.data.title || fallbackTitle || 'Untitled';
@@ -689,7 +685,6 @@ function loadVideo(id, fallbackTitle) {
 
       var proxiedUrl = PROXY_WORKER + '/' + rawUrl;
 
-      // Simpan data untuk aksi tombol
       currentVideoData = {
         id: id,
         title: finalTitle,
@@ -700,42 +695,28 @@ function loadVideo(id, fallbackTitle) {
 
       var isHls = (json.data.format === 'hls') || (!json.data.format && rawUrl.includes('.m3u8'));
 
-      // Pasang <source> dengan type yang benar SEBELUM init Fluid Player —
-      // ini pola resmi Fluid Player buat HLS (dia pakai hls.js bawaan sendiri
-      // begitu ketemu type="application/x-mpegURL", nggak perlu kita bikin
-      // instance Hls() manual lagi kayak sebelumnya).
-      videoEl.innerHTML = ''; // buang <source> lama kalau ada (jaga-jaga)
+      videoEl.innerHTML = '';
       var sourceEl = document.createElement('source');
       sourceEl.src = proxiedUrl;
       sourceEl.type = isHls ? 'application/x-mpegURL' : 'video/mp4';
       videoEl.appendChild(sourceEl);
 
-      // Fluid Player diinisialisasi SEKALI di sini (bukan di atas saat halaman
-      // baru dimuat) — karena butuh <source> yang benar sudah terpasang dulu.
-      // Wajar cuma sekali: 1 halaman /watch/:slug = 1 video, arsitekturnya
-      // full page reload tiap pindah video, bukan SPA yang ganti-ganti source
-      // di player yang sama.
       if (!player) {
         player = fluidPlayer('main-player', {
           layoutControls: {
             fillToContainer: true,
-            primaryColor: '#E50914', // satu-satunya cara resmi nge-tema warna ikon/kontrol, jangan override CSS class manual
+            primaryColor: '#E50914',
             playButtonShowing: true,
             playbackRateEnabled: true,
             keyboardControl: true,
-            allowTheatre: false,           // buang tombol teater mode
-            miniPlayer: { enabled: false }, // buang mini-player/PIP mode
+            allowTheatre: false,
+            miniPlayer: { enabled: false },
             controlBar: {
-              autoHide: true,        // kontrol otomatis hilang kalau nggak disentuh
-              autoHideTimeout: 3,    // 3 detik nggak ada interaksi -> hilang
+              autoHide: true,
+              autoHideTimeout: 3,
               animated: true
             }
           },
-          // Iklan VAST dari HilltopAds — dipasang sebagai pre-roll (tampil
-          // sekali sebelum video mulai). Struktur `vastOptions.adList` ini
-          // pola RESMI Fluid Player, sama dipakai semua network VAST
-          // (ExoClick, Adsterra-style, dst) — bukan kode khusus HilltopAds,
-          // karena VAST sendiri protokol XML standar terbuka.
           vastOptions: {
             adList: [
               {
@@ -748,15 +729,24 @@ function loadVideo(id, fallbackTitle) {
             skipButtonClickCaption: 'Lewati Iklan &raquo;'
           }
         });
+
+        // Hook resmi Fluid Player: fire persis saat ada visual pertama yang
+        // BENAR-BENAR mulai diputar — baik itu preRoll ad maupun video utama.
+        // Ini menutup celah blank hitam yang terjadi kalau loader cuma
+        // mengandalkan event native <video> (yang tidak menangkap fase
+        // fetch+parse VAST tag sebelum ad creative benar-benar ter-assign).
+        player.on('play', function(additionalInfo) {
+          hidePlayerLoader();
+        });
       } else {
-        videoEl.load(); // source berubah tanpa re-init (jaga-jaga kalau loadVideo terpanggil ulang)
+        videoEl.load();
       }
 
       loadRelatedVideos(id);
     })
     .catch(function() {
       setTitle('Network Server Error');
-      playerLoader.classList.remove('show');
+      hidePlayerLoader();
     });
 }
 
@@ -807,18 +797,13 @@ btnBookmark.onclick = function() {
     btnBookmark.classList.add('active');
   }
   saveBookmarks(list);
-  updateHeaderBookmarkBadge(); // sinkronkan badge header setelah toggle
+  updateHeaderBookmarkBadge();
 };
 
-document.getElementById('btn-download').onclick = function() {
-  if (!currentVideoData || !currentVideoData.downloadUrl) {
-    alert('URL unduhan belum tersedia.');
-    return;
-  }
-  window.open(currentVideoData.downloadUrl, '_blank');
-};
+// ── LIKE: placeholder icon-only, TANPA fungsi (belum ada logic apapun) ──
+// document.getElementById('btn-like') sengaja tidak diberi onclick.
 
-// ── SEO DESCRIPTION: collapsible, default hidden ──
+// ── SEO DESCRIPTION: collapsible, default hidden, toggle icon-only ──
 var seoToggle = document.getElementById('seo-toggle');
 var seoDescBody = document.getElementById('seo-desc-body');
 seoToggle.onclick = function() {
